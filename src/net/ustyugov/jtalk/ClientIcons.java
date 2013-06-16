@@ -66,16 +66,12 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_vacuum);
 							} else if (node.toLowerCase().contains("gmail")) {
 								imageView.setImageResource(R.drawable.client_gmail);
-							} else if (node.toLowerCase().contains("ichat")) {
-								imageView.setImageResource(R.drawable.client_ichat);
                             } else if (node.toLowerCase().contains("isida-bot.com")) {
 								imageView.setImageResource(R.drawable.client_isida);
 							} else if (node.toLowerCase().contains("jabbim")) {
 								imageView.setImageResource(R.drawable.client_jabbim);
                             } else if (node.toLowerCase().contains("jabbroid.akuz.de/caps")) {
 								imageView.setImageResource(R.drawable.client_jabbroid);
-							} else if (node.toLowerCase().contains("jabber.el")) {
-								imageView.setImageResource(R.drawable.client_jabberel);
 							} else if (node.toLowerCase().contains("jajc.jrudevels.org/caps")) {
 								imageView.setImageResource(R.drawable.client_jajc);
 							} else if (node.toLowerCase().contains("jimm.net.ru/caps")) {
