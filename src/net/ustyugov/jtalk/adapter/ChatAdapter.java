@@ -55,34 +55,35 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class ChatAdapter extends ArrayAdapter<MessageItem> implements TextLinkClickListener {
-	private String searchString = "";
+        private String searchString = "";
 
-	private SharedPreferences prefs;
-	private Context context;
-	private Smiles smiles;
-	private String jid;
-	private boolean firstClick = false;
-	private boolean showtime;
-	private Timer doubleClickTimer = new Timer();
-	
-	public ChatAdapter(Context context, Smiles smiles) {
+        private SharedPreferences prefs;
+        private Context context;
+        private Smiles smiles;
+        private String jid;
+        private boolean firstClick = false;
+        private boolean showtime;
+        private Timer doubleClickTimer = new Timer();
+        
+        public ChatAdapter(Context context, Smiles smiles) {
         super(context, R.id.chat1);
         this.context = context;
         this.smiles  = smiles;
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.showtime = prefs.getBoolean("ShowTime", false);
     }
-	
-	public void update(String jid, List<MessageItem> list, String searchString) {
-		this.jid = jid;
+        
+        public void update(String jid, List<MessageItem> list, String searchString) {
+                this.jid = jid;
         this.searchString = searchString;
-		clear();
+                clear();
 
+        boolean showStatuses = prefs.getBoolean("ShowStatus", false);
         for (MessageItem item : list) {
+            MessageItem.Type type = item.getType();
             if (searchString.length() > 0) {
                 String name = item.getName();
                 String body = item.getBody();
-                MessageItem.Type type = item.getType();
                 String time = createTimeString(item.getTime());
 
                 if (type == MessageItem.Type.status) {
@@ -95,20 +96,22 @@ public class ChatAdapter extends ArrayAdapter<MessageItem> implements TextLinkCl
                 if (body.toLowerCase().contains(searchString.toLowerCase())) {
                     add(item);
                 }
-            } else add(item);
+            } else {
+                if (showStatuses || (!showStatuses && type != MessageItem.Type.status)) add(item);
+            }
         }
-	}
-	
-	public String getJid() { return this.jid; }
+        }
+        
+        public String getJid() { return this.jid; }
 
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		boolean enableCollapse = prefs.getBoolean("EnableCollapseMessages", true);
-		int fontSize = Integer.parseInt(context.getResources().getString(R.string.DefaultFontSize));
-		try {
-			fontSize = Integer.parseInt(prefs.getString("FontSize", context.getResources().getString(R.string.DefaultFontSize)));
-		} catch (NumberFormatException ignored) {	}
-		
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+                boolean enableCollapse = prefs.getBoolean("EnableCollapseMessages", true);
+                int fontSize = Integer.parseInt(context.getResources().getString(R.string.DefaultFontSize));
+                try {
+                        fontSize = Integer.parseInt(prefs.getString("FontSize", context.getResources().getString(R.string.DefaultFontSize)));
+                } catch (NumberFormatException ignored) {       }
+                
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.chat_item, null, false);
@@ -130,28 +133,28 @@ public class ChatAdapter extends ArrayAdapter<MessageItem> implements TextLinkCl
         String message;
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         if (type == MessageItem.Type.status) {
-        	if (showtime) message = time + "  " + body;
-        	else message = body;
-        	ssb.append(message);
-        	ssb.setSpan(new ForegroundColorSpan(Colors.STATUS_MESSAGE), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if (showtime) message = time + "  " + body;
+                else message = body;
+                ssb.append(message);
+                ssb.setSpan(new ForegroundColorSpan(Colors.STATUS_MESSAGE), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
-        	int colorLength = name.length();
-        	int boldLength = colorLength;
-        	
-        	if (showtime) {
-        		message = time + " " + name + ": " + body;
-        		colorLength = name.length() + time.length() + 1;
-        		boldLength = name.length() + time.length() + subj.length() + 2;
-        	}
-        	else message = name + ": " + body;
-        	ssb.append(message);
-        	ssb.setSpan(new ForegroundColorSpan(Colors.PRIMARY_TEXT), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        	ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, boldLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                int colorLength = name.length();
+                int boldLength = colorLength;
+                
+                if (showtime) {
+                        message = time + " " + name + ": " + body;
+                        colorLength = name.length() + time.length() + 1;
+                        boldLength = name.length() + time.length() + subj.length() + 2;
+                }
+                else message = name + ": " + body;
+                ssb.append(message);
+                ssb.setSpan(new ForegroundColorSpan(Colors.PRIMARY_TEXT), 0, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, boldLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             if (!nick.equals(context.getResources().getString(R.string.Me)))
-            	ssb.setSpan(new ForegroundColorSpan(Colors.INBOX_MESSAGE), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.setSpan(new ForegroundColorSpan(Colors.INBOX_MESSAGE), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             else {
-            	if (received) ssb.setSpan(new ForegroundColorSpan(Colors.OUTBOX_MESSAGE), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            	else ssb.setSpan(new ForegroundColorSpan(Colors.PRIMARY_TEXT), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if (received) ssb.setSpan(new ForegroundColorSpan(Colors.OUTBOX_MESSAGE), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                else ssb.setSpan(new ForegroundColorSpan(Colors.PRIMARY_TEXT), 0, colorLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             
             if (item.isEdited()) ssb.setSpan(new ForegroundColorSpan(Colors.HIGHLIGHT_TEXT), colorLength + 1, ssb.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -176,57 +179,57 @@ public class ChatAdapter extends ArrayAdapter<MessageItem> implements TextLinkCl
         final MyTextView textView = (MyTextView) convertView.findViewById(R.id.chat1);
         textView.setOnTextLinkClickListener(this);
         if (enableCollapse) {
-        	textView.setOnTouchListener(new OnTouchListener() {
-            	View oldView = null;
-    			public boolean onTouch(View view, MotionEvent event) {
-    				switch (event.getAction()) {
-    	    			case MotionEvent.ACTION_DOWN:
-    	    				if (!firstClick) {
-    	    					oldView = view;
-    	    					firstClick = true;
-    	    					doubleClickTimer.purge();
-    	    					doubleClickTimer.cancel();
-    	    					doubleClickTimer = new Timer();
-    	    					doubleClickTimer.schedule(new TimerTask(){
-    	    						@Override
-    	    						public void run() {
-    	    							firstClick = false;
-    	    						}
-    	    					}, 500);
-    	    				} else {
-    	    					firstClick = false;
-    	    					if (oldView != null && oldView.equals(view)) {
-    		    					if (item.isCollapsed()) {
-    		    						item.setCollapsed(false);
-    		    						textView.setSingleLine(false);
-    		    						expand.setVisibility(View.GONE);
-    		    					} else {
-    		    						item.setCollapsed(true);
-    		    						textView.setSingleLine(true);
-    		    						expand.setVisibility(View.VISIBLE);
-    		    					}
-    	    					}
-    	    				}
-    	    				break;
-    	    			default:
-    	    				break;
-    				}
-    				return false;			
-    			}
+                textView.setOnTouchListener(new OnTouchListener() {
+                View oldView = null;
+                        public boolean onTouch(View view, MotionEvent event) {
+                                switch (event.getAction()) {
+                                case MotionEvent.ACTION_DOWN:
+                                        if (!firstClick) {
+                                                oldView = view;
+                                                firstClick = true;
+                                                doubleClickTimer.purge();
+                                                doubleClickTimer.cancel();
+                                                doubleClickTimer = new Timer();
+                                                doubleClickTimer.schedule(new TimerTask(){
+                                                        @Override
+                                                        public void run() {
+                                                                firstClick = false;
+                                                        }
+                                                }, 500);
+                                        } else {
+                                                firstClick = false;
+                                                if (oldView != null && oldView.equals(view)) {
+                                                        if (item.isCollapsed()) {
+                                                                item.setCollapsed(false);
+                                                                textView.setSingleLine(false);
+                                                                expand.setVisibility(View.GONE);
+                                                        } else {
+                                                                item.setCollapsed(true);
+                                                                textView.setSingleLine(true);
+                                                                expand.setVisibility(View.VISIBLE);
+                                                        }
+                                                }
+                                        }
+                                        break;
+                                default:
+                                        break;
+                                }
+                                return false;                   
+                        }
             });
         }
         
         if (collapsed && enableCollapse) {
-        	textView.setSingleLine(true);
-        	expand.setVisibility(View.VISIBLE);
+                textView.setSingleLine(true);
+                expand.setVisibility(View.VISIBLE);
         } else {
-        	textView.setSingleLine(false);
-        	expand.setVisibility(View.GONE);
+                textView.setSingleLine(false);
+                expand.setVisibility(View.GONE);
         }
         
         if (prefs.getBoolean("ShowSmiles", true)) {
-        	int startPosition = message.length() - body.length();
-        	ssb = smiles.parseSmiles(ssb, startPosition);
+                int startPosition = message.length() - body.length();
+                ssb = smiles.parseSmiles(ssb, startPosition);
         }
         
         if (jid.equals(Constants.JUICK) || jid.equals(Constants.JUBO)) textView.setTextWithLinks(ssb, MyTextView.Mode.juick);
@@ -246,27 +249,27 @@ public class ChatAdapter extends ArrayAdapter<MessageItem> implements TextLinkCl
         else convertView.setBackgroundColor(0X00000000);
         return convertView;
     }
-	
-	public void onTextLinkClick(View textView, String s) {
-		if (s.length() > 1) {
-			if (s.substring(0, 1).equals("@") || s.substring(0, 1).equals("#")) {
-				new JuickMessageMenuDialog(context, s).show();
-			} else {
-				int idx = s.indexOf(":");
-				if (idx > 0) {
-					String scheme = s.substring(0, idx).toLowerCase();
-					String path = s.substring(idx);
-					Uri uri = Uri.parse(scheme + path);
-					if (uri != null) {
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(uri);
-						context.startActivity(intent);
-					}
-				}
-			}
-		}
-	}
-	
+        
+        public void onTextLinkClick(View textView, String s) {
+                if (s.length() > 1) {
+                        if (s.substring(0, 1).equals("@") || s.substring(0, 1).equals("#")) {
+                                new JuickMessageMenuDialog(context, s).show();
+                        } else {
+                                int idx = s.indexOf(":");
+                                if (idx > 0) {
+                                        String scheme = s.substring(0, idx).toLowerCase();
+                                        String path = s.substring(idx);
+                                        Uri uri = Uri.parse(scheme + path);
+                                        if (uri != null) {
+                                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                                intent.setData(uri);
+                                                context.startActivity(intent);
+                                        }
+                                }
+                        }
+                }
+        }
+        
     private String createTimeString(String time) {
         Date d = new Date();
         java.text.DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
