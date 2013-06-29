@@ -19,13 +19,13 @@ package net.ustyugov.jtalk.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import net.ustyugov.jtalk.*;
 import net.ustyugov.jtalk.activity.RosterActivity;
 import net.ustyugov.jtalk.db.AccountDbHelper;
 import net.ustyugov.jtalk.db.JTalkProvider;
-import net.ustyugov.jtalk.dialog.RosterDialogs;
 import net.ustyugov.jtalk.listener.ConListener;
 import net.ustyugov.jtalk.listener.IncomingFileListener;
 import net.ustyugov.jtalk.listener.InviteListener;
@@ -98,7 +98,6 @@ import org.xbill.DNS.Type;
 
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -114,14 +113,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.jtalk2.R;
  
 public class JTalkService extends Service {
     private boolean started = false;
-	private static JTalkService js = new JTalkService();
+        private static JTalkService js = new JTalkService();
     private List<String> collapsedGroups = new ArrayList<String>();
     private List<String> composeList = new ArrayList<String>();
     private Hashtable<String, List<String>> activeChats = new Hashtable<String, List<String>>();
@@ -160,24 +158,42 @@ public class JTalkService extends Service {
 
     private IconPicker iconPicker;
 
+    private Hashtable<String, Hashtable<String, List<MessageItem>>> messages = new Hashtable<String, Hashtable<String, List<MessageItem>>>();
+
     public static JTalkService getInstance() { return js; }
+
+    public List<MessageItem> getMessageList(String account, String jid) {
+        Hashtable<String, List<MessageItem>> hash = new Hashtable<String, List<MessageItem>>();
+        if (messages.containsKey(account)) hash = messages.get(account);
+
+        if (!hash.containsKey(jid)) return new ArrayList<MessageItem>();
+        else return hash.get(jid);
+    }
+
+    public void setMessageList(String account, String jid, List<MessageItem> list) {
+        Hashtable<String, List<MessageItem>> hash = new Hashtable<String, List<MessageItem>>();
+        if (messages.containsKey(account)) hash = messages.get(account);
+
+        hash.put(jid, list);
+        messages.put(account, hash);
+    }
     
     private void removeConnectionListener(String account) {
-    	if (conListeners.containsKey(account)) {
-    		ConListener listener = conListeners.remove(account);
-    		XMPPConnection connection = getConnection(account);
-    		if (connection != null) connection.removeConnectionListener(listener);
-    	}
+        if (conListeners.containsKey(account)) {
+                ConListener listener = conListeners.remove(account);
+                XMPPConnection connection = getConnection(account);
+                if (connection != null) connection.removeConnectionListener(listener);
+        }
     }
     
     private void addConnectionListener(String account, XMPPConnection connection) {
-    	ConListener listener = new ConListener(this, account);
-    	connection.addConnectionListener(listener);
-    	conListeners.put(account, listener);
+        ConListener listener = new ConListener(this, account);
+        connection.addConnectionListener(listener);
+        conListeners.put(account, listener);
     }
     
     public Collection<XMPPConnection> getAllConnections() {
-    	return connections.values();
+        return connections.values();
     }
 
     public void setState(String account, String state) {
@@ -195,46 +211,46 @@ public class JTalkService extends Service {
     }
     
     public XMPPConnection getConnection(String account) {
-    	if (account != null && connections.containsKey(account)) return connections.get(account);
-    	else return null;
+        if (account != null && connections.containsKey(account)) return connections.get(account);
+        else return null;
     }
     
     public int getMessagesCount() {
-    	int result = 0;
-    	for (Hashtable<String, Integer> hash : messagesCount.values()) {
-    		for (Integer i : hash.values()) {
-    			result = result + i;
-    		}
-    	}
-    	return result;
+        int result = 0;
+        for (Hashtable<String, Integer> hash : messagesCount.values()) {
+                for (Integer i : hash.values()) {
+                        result = result + i;
+                }
+        }
+        return result;
     }
     
     public int getMessagesCount(String account, String jid) {
-    	if (messagesCount.containsKey(account)) {
-    		Hashtable<String, Integer> hash = messagesCount.get(account);
-    		if (hash.containsKey(jid)) return hash.get(jid);
-    	}
-    	return 0;
+        if (messagesCount.containsKey(account)) {
+                Hashtable<String, Integer> hash = messagesCount.get(account);
+                if (hash.containsKey(jid)) return hash.get(jid);
+        }
+        return 0;
     }
     
     public void addMessagesCount(String account, String jid) {
-    	Hashtable<String, Integer> hash = new Hashtable<String, Integer>();
-    	if (messagesCount.containsKey(account)) {
-    		hash = messagesCount.get(account);
-    		hash.put(jid, getMessagesCount(account, jid) + 1);
-    	} else {
-    		hash.put(jid, 1);
-    	}
-    	messagesCount.put(account, hash);
-//    	updateWidget();
+        Hashtable<String, Integer> hash = new Hashtable<String, Integer>();
+        if (messagesCount.containsKey(account)) {
+                hash = messagesCount.get(account);
+                hash.put(jid, getMessagesCount(account, jid) + 1);
+        } else {
+                hash.put(jid, 1);
+        }
+        messagesCount.put(account, hash);
+//      updateWidget();
     }
     
     public void removeMessagesCount(String account, String jid) {
-    	if (messagesCount.containsKey(account)) {
-    		Hashtable<String, Integer> hash = messagesCount.get(account);
-    		if (hash.containsKey(jid)) hash.remove(jid);
-    	}
-//    	updateWidget();
+        if (messagesCount.containsKey(account)) {
+                Hashtable<String, Integer> hash = messagesCount.get(account);
+                if (hash.containsKey(jid)) hash.remove(jid);
+        }
+//      updateWidget();
     }
 
     public void removeMessagesCountForJid(String account, String jid) {
@@ -248,40 +264,25 @@ public class JTalkService extends Service {
                 }
             }
         }
-//    	updateWidget();
-    }
-
-    public void setMsgCounter(String jid, int count) {
-        msgCounter.put(jid, count);
-    }
-
-    public int getMsgCount(String jid) {
-        if (msgCounter.containsKey(jid)) return msgCounter.get(jid);
-        else return 0;
-    }
-
-    public void addMsgCounter(String jid) {
-        int count = 0;
-        if (msgCounter.containsKey(jid)) count = msgCounter.get(jid);
-        msgCounter.put(jid, count+1);
+//      updateWidget();
     }
 
     public void addDataForm(String id, DataForm form) {
-    	formHash.put(id, form);
+        formHash.put(id, form);
     }
     
     public DataForm getDataForm(String id) {
-    	if (formHash.containsKey(id)) return formHash.remove(id);
-    	else return null;
+        if (formHash.containsKey(id)) return formHash.remove(id);
+        else return null;
     }
     
     public void addLastPosition(String jid, int position) {
-    	positionHash.put(jid, position);
+        positionHash.put(jid, position);
     }
     
     public int getLastPosition(String jid) {
-    	if (positionHash.containsKey(jid)) return positionHash.remove(jid);
-    	else return -1;
+        if (positionHash.containsKey(jid)) return positionHash.remove(jid);
+        else return -1;
     }
     
     public IconPicker getIconPicker() { return iconPicker; }
@@ -297,19 +298,19 @@ public class JTalkService extends Service {
     public String getGlobalState() { return globalState; }
     public void setGlobalState(String s) { globalState = s; }
     public Roster getRoster(String account) {
-    	if (connections != null && connections.containsKey(account)) return connections.get(account).getRoster();
-    	else return null;
+        if (connections != null && connections.containsKey(account)) return connections.get(account).getRoster();
+        else return null;
     }
     public List<String> getCollapsedGroups() { return collapsedGroups; }
     public List<String> getComposeList() { return composeList; }
     
     public Hashtable<String, Hashtable<String, MultiUserChat>> getConferences() {return conferences;}
     public Hashtable<String, MultiUserChat> getConferencesHash(String account) { 
-    	if (conferences.containsKey(account)) return conferences.get(account); 
-    	else {
-    		conferences.put(account, new Hashtable<String, MultiUserChat>());
-    		return conferences.get(account);
-    	}
+        if (conferences.containsKey(account)) return conferences.get(account); 
+        else {
+                conferences.put(account, new Hashtable<String, MultiUserChat>());
+                return conferences.get(account);
+        }
     }
     public Hashtable<String, Conference> getJoinedConferences() { return joinedConferences; }
     public Hashtable<String, Bitmap> getAvatarsHash() { return avatarsHash; }
@@ -355,27 +356,27 @@ public class JTalkService extends Service {
     }
     
     public boolean isHighlight(String account, String jid) { 
-    	if (!mucHighlightsList.containsKey(account)) return false;
-    	List<String> list = mucHighlightsList.get(account);
+        if (!mucHighlightsList.containsKey(account)) return false;
+        List<String> list = mucHighlightsList.get(account);
         return list.contains(jid);
     }
     
     public void removeHighlight(String account, String jid) { 
-    	if (!mucHighlightsList.containsKey(account)) return;
-    	List<String> list = mucHighlightsList.get(account);
-    	if (list.contains(jid)) list.remove(jid);
-    	mucHighlightsList.put(account, list);
+        if (!mucHighlightsList.containsKey(account)) return;
+        List<String> list = mucHighlightsList.get(account);
+        if (list.contains(jid)) list.remove(jid);
+        mucHighlightsList.put(account, list);
     }
     
     public void addHighlight(String account, String jid) {
-    	List<String> list = new ArrayList<String>();
-    	if (mucHighlightsList.containsKey(account)) {
-    		list = mucHighlightsList.get(account);
-    		if (!list.contains(jid)) list.add(jid);
-    	} else {
-    		list.add(jid);
-    	}
-    	mucHighlightsList.put(account, list);
+        List<String> list = new ArrayList<String>();
+        if (mucHighlightsList.containsKey(account)) {
+                list = mucHighlightsList.get(account);
+                if (!list.contains(jid)) list.add(jid);
+        } else {
+                list.add(jid);
+        }
+        mucHighlightsList.put(account, list);
     }
 
     public void addActiveChat(String account, String jid) {
@@ -414,151 +415,151 @@ public class JTalkService extends Service {
     }
     
     public void setResource(String account, String jid, String resource) {
-    	Hashtable<String,String> hash = new Hashtable<String, String>();
-    	hash.put(jid, resource);
-    	resourceHash.put(account, hash);
+        Hashtable<String,String> hash = new Hashtable<String, String>();
+        hash.put(jid, resource);
+        resourceHash.put(account, hash);
     }
     public String getResource(String account, String jid) {
-    	if (resourceHash.containsKey(account)) {
-    		Hashtable<String,String> hash = resourceHash.get(account);
-    		if (hash.containsKey(jid)) return hash.get(jid);
-    	}
-    	return "";
+        if (resourceHash.containsKey(account)) {
+                Hashtable<String,String> hash = resourceHash.get(account);
+                if (hash.containsKey(jid)) return hash.get(jid);
+        }
+        return "";
     }
     public void setText(String jid, String text) {
         if (text != null) textHash.put(jid, text);
     }
 
     public String getText(String jid) {
-    	if (textHash.containsKey(jid)) return textHash.get(jid);
-    	else return "";
+        if (textHash.containsKey(jid)) return textHash.get(jid);
+        else return "";
     }
     public VCard getVCard(String account) { 
-    	if (vcards.containsKey(account)) return vcards.get(account);
-    	else return null; 
+        if (vcards.containsKey(account)) return vcards.get(account);
+        else return null; 
     }
     
     public void setVCard(final String account, VCard vcard) { 
-    	if (vcard != null) {
-    		vcards.put(account, vcard);
-        	final byte[] buffer = vcard.getAvatar();
-    		if (buffer != null) {
-    			new Thread() {
-    				public void run() {
-    					try {
-    						File f = new File(Constants.PATH);
-    						f.mkdirs();
-    						FileOutputStream fos = new FileOutputStream(Constants.PATH + "/" + account);
-    						fos.write(buffer);
-    						fos.close();
-    					} catch (Throwable ignored) { }
-    				}
-    			}.start();
-    		}
-    		Intent intent = new Intent(Constants.UPDATE);
-    		sendBroadcast(intent);
-    	}
+        if (vcard != null) {
+                vcards.put(account, vcard);
+                final byte[] buffer = vcard.getAvatar();
+                if (buffer != null) {
+                        new Thread() {
+                                public void run() {
+                                        try {
+                                                File f = new File(Constants.PATH);
+                                                f.mkdirs();
+                                                FileOutputStream fos = new FileOutputStream(Constants.PATH + "/" + account);
+                                                fos.write(buffer);
+                                                fos.close();
+                                        } catch (Throwable ignored) { }
+                                }
+                        }.start();
+                }
+                Intent intent = new Intent(Constants.UPDATE);
+                sendBroadcast(intent);
+        }
     }
     
     public Presence getPresence(String account, String user) {
-    	Presence unavailable = new Presence(Presence.Type.unavailable);
-    	if (connections.containsKey(account)) {
-        	if (!connections.get(account).isAuthenticated()) return unavailable;
-        	
-    		if (StringUtils.parseResource(user).length() > 0) {
-    			String bareJid = StringUtils.parseBareAddress(user);
-    			if (getConferencesHash(account).containsKey(bareJid)) {
-    				Presence p = getConferencesHash(account).get(bareJid).getOccupantPresence(user);
-    				if (p != null) return p;
-    				else return unavailable;
-    			} else {
-    				Presence p = getRoster(account).getPresenceResource(user);
-    				if (p != null) return p;
-    				else return unavailable;
-    			}
-    		} else {
-    	    	Iterator<Presence> it = getRoster(account).getPresences(user);
-    	    	if(it.hasNext()) {
-    	    		return it.next();
-    	    	} else {
-    	    		return unavailable;
-    	    	}
-    		}
-    	}
-		return unavailable;
+        Presence unavailable = new Presence(Presence.Type.unavailable);
+        if (connections.containsKey(account)) {
+                if (!connections.get(account).isAuthenticated()) return unavailable;
+                
+                if (StringUtils.parseResource(user).length() > 0) {
+                        String bareJid = StringUtils.parseBareAddress(user);
+                        if (getConferencesHash(account).containsKey(bareJid)) {
+                                Presence p = getConferencesHash(account).get(bareJid).getOccupantPresence(user);
+                                if (p != null) return p;
+                                else return unavailable;
+                        } else {
+                                Presence p = getRoster(account).getPresenceResource(user);
+                                if (p != null) return p;
+                                else return unavailable;
+                        }
+                } else {
+                Iterator<Presence> it = getRoster(account).getPresences(user);
+                if(it.hasNext()) {
+                        return it.next();
+                } else {
+                        return unavailable;
+                }
+                }
+        }
+                return unavailable;
     }
     
     public Presence.Type getType(String account, String user) {
-    	if (connections.containsKey(account)) {
-    		if (StringUtils.parseResource(user).length() > 0) {
-    			String g = StringUtils.parseBareAddress(user);
-    			if (getConferencesHash(account).containsKey(g)) {
-    				Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
-    				if (p != null) return p.getType();
-    				else return Presence.Type.unavailable;
-    			} else {
-    				Presence p = getRoster(account).getPresenceResource(user);
-    				if (p != null) return p.getType();
-    				else return Presence.Type.unavailable;
-    			}
-    		} else {
-    	    	Iterator<Presence> it = getRoster(account).getPresences(user);
-    	    	if(it.hasNext()) {
-    	    		return it.next().getType();
-    	    	} else {
-    	    		return Presence.Type.unavailable;
-    	    	}
-    		}
-    	}
-		return Presence.Type.unavailable;
+        if (connections.containsKey(account)) {
+                if (StringUtils.parseResource(user).length() > 0) {
+                        String g = StringUtils.parseBareAddress(user);
+                        if (getConferencesHash(account).containsKey(g)) {
+                                Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
+                                if (p != null) return p.getType();
+                                else return Presence.Type.unavailable;
+                        } else {
+                                Presence p = getRoster(account).getPresenceResource(user);
+                                if (p != null) return p.getType();
+                                else return Presence.Type.unavailable;
+                        }
+                } else {
+                Iterator<Presence> it = getRoster(account).getPresences(user);
+                if(it.hasNext()) {
+                        return it.next().getType();
+                } else {
+                        return Presence.Type.unavailable;
+                }
+                }
+        }
+                return Presence.Type.unavailable;
     }
     
     public Presence.Mode getMode(String account, String user) {
-    	if (connections.containsKey(account)) {
-    		if (StringUtils.parseResource(user).length() > 0) {
-    			String g = StringUtils.parseBareAddress(user);
-    			if (getConferencesHash(account).containsKey(g)) {
-    				Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
-    				if (p != null) {
-    					Presence.Mode m = p.getMode();
-    					if (m == null) return Presence.Mode.available;
-    					else return m;
-    				}
-    				else return Presence.Mode.available;
-    			} else {
-    				Presence p = getRoster(account).getPresenceResource(user);
-    				if (p != null) {
-    					Presence.Mode m = p.getMode();
-    					if (m == null) return Presence.Mode.available;
-    					else return m;
-    				}
-    				else return Presence.Mode.available;
-    			}
-    		} 
-        	
-        	Iterator<Presence> it = getRoster(account).getPresences(user);
-        	if(it.hasNext()) {
-        		Presence presence = it.next();
-        		if (presence.getType() != Presence.Type.unavailable) return presence.getMode();
-        		else return Presence.Mode.available;
-        	}
-    	}
-    	return Presence.Mode.available;
+        if (connections.containsKey(account)) {
+                if (StringUtils.parseResource(user).length() > 0) {
+                        String g = StringUtils.parseBareAddress(user);
+                        if (getConferencesHash(account).containsKey(g)) {
+                                Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
+                                if (p != null) {
+                                        Presence.Mode m = p.getMode();
+                                        if (m == null) return Presence.Mode.available;
+                                        else return m;
+                                }
+                                else return Presence.Mode.available;
+                        } else {
+                                Presence p = getRoster(account).getPresenceResource(user);
+                                if (p != null) {
+                                        Presence.Mode m = p.getMode();
+                                        if (m == null) return Presence.Mode.available;
+                                        else return m;
+                                }
+                                else return Presence.Mode.available;
+                        }
+                } 
+                
+                Iterator<Presence> it = getRoster(account).getPresences(user);
+                if(it.hasNext()) {
+                        Presence presence = it.next();
+                        if (presence.getType() != Presence.Type.unavailable) return presence.getMode();
+                        else return Presence.Mode.available;
+                }
+        }
+        return Presence.Mode.available;
     }
     
     public String getStatus(String account, String user) {
-    	if (connections.containsKey(account)) {
-    		if (StringUtils.parseResource(user).length() > 0) {
-    			String g = StringUtils.parseBareAddress(user);
-    			if (getConferencesHash(account).containsKey(g)) {
-    				Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
-    				if (p != null) {
-    					String s = p.getStatus();
-    					if (s == null) return "";
-    					else return s;
-    				}
-    				else return "";
-    			} else {
+        if (connections.containsKey(account)) {
+                if (StringUtils.parseResource(user).length() > 0) {
+                        String g = StringUtils.parseBareAddress(user);
+                        if (getConferencesHash(account).containsKey(g)) {
+                                Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
+                                if (p != null) {
+                                        String s = p.getStatus();
+                                        if (s == null) return "";
+                                        else return s;
+                                }
+                                else return "";
+                        } else {
                     Roster roster = getRoster(account);
                     if (roster != null) {
                         Presence p = getRoster(account).getPresenceResource(user);
@@ -569,99 +570,99 @@ public class JTalkService extends Service {
                         }
                         else return "";
                     } else return "";
-    			}
-    		}
-        	
-        	Roster roster = getRoster(account);
-        	if (roster != null) {
-        		Iterator<Presence> it = roster.getPresences(user);
-            	while(it.hasNext()) {
-            		Presence presence = it.next();
-            		if (presence.getType() != Presence.Type.unavailable)
-            			if (presence.getStatus() == null) return "";
-            			else return presence.getStatus();
-            	}
-        	}
-    	}
-    	return "";
+                        }
+                }
+                
+                Roster roster = getRoster(account);
+                if (roster != null) {
+                        Iterator<Presence> it = roster.getPresences(user);
+                while(it.hasNext()) {
+                        Presence presence = it.next();
+                        if (presence.getType() != Presence.Type.unavailable)
+                                if (presence.getStatus() == null) return "";
+                                else return presence.getStatus();
+                }
+                }
+        }
+        return "";
     }
     
     public String getNode(String account, String user) {
-    	if (connections.containsKey(account)) {
-    		if (StringUtils.parseResource(user).length() > 0) {
-    			String g = StringUtils.parseBareAddress(user);
-    			if (getConferencesHash(account).containsKey(g)) {
-    				Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
-    				if (p != null) {
-    					CapsExtension caps = (CapsExtension) p.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
-    					if (caps != null) return caps.getNode();
-    					else return null;
-    				} else return null;
-    			} else {
-    				Presence p = getRoster(account).getPresenceResource(user);
-    				if (p != null) {
-    					CapsExtension caps = (CapsExtension) p.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
-    					if (caps != null) return caps.getNode();
-    					else return null;
-    				}
-    			}
-    		} 
-        	
-        	List<String> list = new ArrayList<String>();
-        	Iterator<Presence> it = getRoster(account).getPresences(user);
-        	while(it.hasNext()) {
-        		Presence presence = it.next();
-        		if (presence.getType() != Presence.Type.unavailable) {
-        			CapsExtension caps = (CapsExtension) presence.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
-    				if (caps != null) list.add(caps.getNode());
-        		}
-        	}
-        	
-        	if (!list.isEmpty()) return list.get(0);
-        	else return null;
-    	}
-    	return null;
+        if (connections.containsKey(account)) {
+                if (StringUtils.parseResource(user).length() > 0) {
+                        String g = StringUtils.parseBareAddress(user);
+                        if (getConferencesHash(account).containsKey(g)) {
+                                Presence p = getConferencesHash(account).get(g).getOccupantPresence(user);
+                                if (p != null) {
+                                        CapsExtension caps = (CapsExtension) p.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
+                                        if (caps != null) return caps.getNode();
+                                        else return null;
+                                } else return null;
+                        } else {
+                                Presence p = getRoster(account).getPresenceResource(user);
+                                if (p != null) {
+                                        CapsExtension caps = (CapsExtension) p.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
+                                        if (caps != null) return caps.getNode();
+                                        else return null;
+                                }
+                        }
+                } 
+                
+                List<String> list = new ArrayList<String>();
+                Iterator<Presence> it = getRoster(account).getPresences(user);
+                while(it.hasNext()) {
+                        Presence presence = it.next();
+                        if (presence.getType() != Presence.Type.unavailable) {
+                                CapsExtension caps = (CapsExtension) presence.getExtension(CapsExtension.NODE_NAME, CapsExtension.XMLNS);
+                                if (caps != null) list.add(caps.getNode());
+                        }
+                }
+                
+                if (!list.isEmpty()) return list.get(0);
+                else return null;
+        }
+        return null;
     }
     
     public LocationChangedListener getLocationListener() { return locationListener; }
     
     public void resetTimer() {
-    	if (prefs != null) {
-    		autoStatusTimer.purge();
+        if (prefs != null) {
+                autoStatusTimer.purge();
             autoStatusTimer.cancel();
             if (autoStatus) {
-            	autoStatus = false;
-            	
-            	Enumeration<String> e = connections.keys();
-            	while(e.hasMoreElements()) {
-            		sendPresence(e.nextElement(), oldPresence.getStatus(), oldPresence.getMode().name(), oldPresence.getPriority());
-            	}
+                autoStatus = false;
+                
+                Enumeration<String> e = connections.keys();
+                while(e.hasMoreElements()) {
+                        sendPresence(e.nextElement(), oldPresence.getStatus(), oldPresence.getMode().name(), oldPresence.getPriority());
+                }
             }
             autoStatusTimer = new Timer();
             int delayAway = 10;
             int delayXa = 20;
             try {
-            	delayAway = Integer.parseInt(prefs.getString("AutoStatusAway", "10"));
+                delayAway = Integer.parseInt(prefs.getString("AutoStatusAway", "10"));
                 delayXa = Integer.parseInt(prefs.getString("AutoStatusXa", "20"));
             } catch(NumberFormatException ignored) { }
             if (delayAway < 1) delayAway = 1;
             if (delayXa < delayAway) delayXa = delayAway + 1;
             autoStatusTimer.schedule(new AutoAwayStatus(), delayAway * 60000);
             autoStatusTimer.schedule(new AutoXaStatus(), delayXa * 60000);
-    	}
+        }
     }
     
 //    public void updateWidget() {
-//		int	count = 0;
-//		
-//		String[] statusArray = getResources().getStringArray(R.array.statusArray);	
-//		String status = getString(R.string.NotConnected);
-//		if (isAuthenticated()) {
-//			status = statusArray[prefs.getInt("currentSelection", 0)];
-//			count = getMessagesCount();
-//		}
-//		
-//		ContentValues values = new ContentValues();
+//              int     count = 0;
+//              
+//              String[] statusArray = getResources().getStringArray(R.array.statusArray);      
+//              String status = getString(R.string.NotConnected);
+//              if (isAuthenticated()) {
+//                      status = statusArray[prefs.getInt("currentSelection", 0)];
+//                      count = getMessagesCount();
+//              }
+//              
+//              ContentValues values = new ContentValues();
 //        values.put(WidgetDbHelper.MODE, status);
 //        values.put(WidgetDbHelper.COUNTER, count + "");
 //        getContentResolver().update(JTalkProvider.WIDGET_URI, values, null, null);
@@ -671,18 +672,18 @@ public class JTalkService extends Service {
     
     @Override
     public void onCreate() {
-    	configure();
-    	js = this;
-    	prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        configure();
+        js = this;
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         iconPicker = new IconPicker(this);
         
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         
 //        updateReceiver = new BroadcastReceiver() {
-//			@Override
-//			public void onReceive(Context arg0, Intent arg1) {
-//				updateWidget();
-//			}
+//                      @Override
+//                      public void onReceive(Context arg0, Intent arg1) {
+//                              updateWidget();
+//                      }
 //        };
 //        registerReceiver(updateReceiver, new IntentFilter(Constants.UPDATE));
         
@@ -690,20 +691,20 @@ public class JTalkService extends Service {
         registerReceiver(connectionReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         
         Intent i = new Intent(this, RosterActivity.class);
-   		i.setAction(Intent.ACTION_MAIN);
-   		i.addCategory(Intent.CATEGORY_LAUNCHER);
-   		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-   		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-   		
-   		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+                i.setAction(Intent.ACTION_MAIN);
+                i.addCategory(Intent.CATEGORY_LAUNCHER);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+                
+                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.stat_offline);
         mBuilder.setContentTitle(getString(R.string.app_name));
         mBuilder.setContentIntent(contentIntent);
-    		
-		startForeground(1, mBuilder.build());
+                
+                startForeground(1, mBuilder.build());
 
         WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "jTalk");
+                wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "jTalk");
 
         started = true;
 
@@ -714,16 +715,16 @@ public class JTalkService extends Service {
     }
 
     @Override
-	public IBinder onBind(Intent intent) {
-	    return null;
-	}
+        public IBinder onBind(Intent intent) {
+            return null;
+        }
 
     @Override
     public void onDestroy() {
-    	try {
-//    		unregisterReceiver(updateReceiver);
-    		unregisterReceiver(connectionReceiver);
-    	} catch(Exception ignored) { }
+        try {
+//              unregisterReceiver(updateReceiver);
+                unregisterReceiver(connectionReceiver);
+        } catch(Exception ignored) { }
 
         Notify.cancelAll(this);
         stopForeground(true);
@@ -736,96 +737,96 @@ public class JTalkService extends Service {
     public void disconnect() {
         if (!started) return;
         if (wifiLock != null && wifiLock.isHeld()) wifiLock.release();
-    	if (locationManager != null && locationListener != null) locationManager.removeUpdates(locationListener);
-    	Collection<XMPPConnection> con = getAllConnections();
-		for (XMPPConnection connection: con) {
-			String account = StringUtils.parseBareAddress(connection.getUser());
-	    	if (isAuthenticated(account)) {
+        if (locationManager != null && locationListener != null) locationManager.removeUpdates(locationListener);
+        Collection<XMPPConnection> con = getAllConnections();
+                for (XMPPConnection connection: con) {
+                        String account = StringUtils.parseBareAddress(connection.getUser());
+                if (isAuthenticated(account)) {
                 if (connectionTasks.containsKey(account)) { connectionTasks.remove(account).cancel(true); }
-	    		removeConnectionListener(account);
-				Presence presence = new Presence(Presence.Type.unavailable, "", 0, null);
-				connection.disconnect(presence);
-	    	} else if (connection.isConnected()) connection.disconnect();
+                        removeConnectionListener(account);
+                                Presence presence = new Presence(Presence.Type.unavailable, "", 0, null);
+                                connection.disconnect(presence);
+                } else if (connection.isConnected()) connection.disconnect();
             setState(account, getString(R.string.Disconnect));
             connections.remove(connection);
-		}
+                }
     }
     
     public void disconnect(String account) {
         if (!started) return;
         Log.e("Disconnect", account);
-    	if (connections.containsKey(account)) {
+        if (connections.containsKey(account)) {
             if (connectionTasks.containsKey(account)) {
                 connectionTasks.remove(account).cancel(true);
             }
 
-    		XMPPConnection connection = connections.remove(account);
+                XMPPConnection connection = connections.remove(account);
             if (isAuthenticated(account)) {
                 removeConnectionListener(account);
                 Presence presence = new Presence(Presence.Type.unavailable, "", 0, null);
                 connection.disconnect(presence);
             } else if (connection.isConnected()) connection.disconnect();
             setState(account, getString(R.string.Disconnect));
-    	}
-    	sendBroadcast(new Intent(Constants.UPDATE));
+        }
+        sendBroadcast(new Intent(Constants.UPDATE));
     }
     
     public void reconnect() {
         if (!started) return;
-    	globalState = getResources().getString(R.string.Reconnecting) + "...";
-    	Intent i = new Intent(Constants.UPDATE);
-    	sendBroadcast(i);
-    	new Thread() {
-    		@Override
-    		public void run() {
-    			disconnect();
-    			connect();
-    		}
-    	}.start();
+        globalState = getResources().getString(R.string.Reconnecting) + "...";
+        Intent i = new Intent(Constants.UPDATE);
+        sendBroadcast(i);
+        new Thread() {
+                @Override
+                public void run() {
+                        disconnect();
+                        connect();
+                }
+        }.start();
     }
     
     public void reconnect(final String account) {
         if (!started) return;
         setState(account, getResources().getString(R.string.Reconnecting) + "...");
-    	Intent i = new Intent(Constants.UPDATE);
-    	sendBroadcast(i);
-    	new Thread() {
-    		@Override
-    		public void run() {
-    			disconnect(account);
-    			connect(account);
-    		}
-    	}.start();
+        Intent i = new Intent(Constants.UPDATE);
+        sendBroadcast(i);
+        new Thread() {
+                @Override
+                public void run() {
+                        disconnect(account);
+                        connect(account);
+                }
+        }.start();
     }
     
     public void connect() {
         if (!started) return;
-    	if (prefs.getBoolean("WifiLock", false)) wifiLock.acquire();
-    	
-//		String text  = prefs.getString("currentStatus", "");
-		String mode  = prefs.getString("currentMode", "available");
-		
-		if (mode.equals("online")) {
-			mode = "available";
-			setPreference("currentSelection", 0);
-		}
-		
-		if (!mode.equals("unavailable")) {
-//			globalState = getString(R.string.Connecting) + "...";
-	    	Intent i = new Intent(Constants.UPDATE);
-	    	sendBroadcast(i);
-	    	
-	    	Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				do {
-					String username = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID)).trim();
-					String password = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PASS)).trim();
-					String resource = cursor.getString(cursor.getColumnIndex(AccountDbHelper.RESOURCE)).trim();
-					String service = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SERVER));
-					String tls = cursor.getString(cursor.getColumnIndex(AccountDbHelper.TLS));
+        if (prefs.getBoolean("WifiLock", false)) wifiLock.acquire();
+        
+//              String text  = prefs.getString("currentStatus", "");
+                String mode  = prefs.getString("currentMode", "available");
+                
+                if (mode.equals("online")) {
+                        mode = "available";
+                        setPreference("currentSelection", 0);
+                }
+                
+                if (!mode.equals("unavailable")) {
+//                      globalState = getString(R.string.Connecting) + "...";
+                Intent i = new Intent(Constants.UPDATE);
+                sendBroadcast(i);
+                
+                Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
+                        if (cursor != null && cursor.getCount() > 0) {
+                                cursor.moveToFirst();
+                                do {
+                                        String username = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID)).trim();
+                                        String password = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PASS)).trim();
+                                        String resource = cursor.getString(cursor.getColumnIndex(AccountDbHelper.RESOURCE)).trim();
+                                        String service = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SERVER));
+                                        String tls = cursor.getString(cursor.getColumnIndex(AccountDbHelper.TLS));
                     String sasl = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SASL));
-					String port = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PORT));
+                                        String port = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PORT));
 
                     ConnectionTask task = new ConnectionTask();
                     if (connectionTasks.containsKey(username)) task = connectionTasks.get(username);
@@ -833,35 +834,35 @@ public class JTalkService extends Service {
                         task.execute(username, password, resource, service, tls, sasl, port);
                         connectionTasks.put(username, task);
                     }
-				} while(cursor.moveToNext());
-				cursor.close();
-			}
-		} else {
-//			globalState = text;
-			Intent i = new Intent(Constants.UPDATE);
-	    	sendBroadcast(i);
-		}
+                                } while(cursor.moveToNext());
+                                cursor.close();
+                        }
+                } else {
+//                      globalState = text;
+                        Intent i = new Intent(Constants.UPDATE);
+                sendBroadcast(i);
+                }
     }
     
     public void connect(String account) {
         if (!started) return;
-    	Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.JID + " = '" + account + "'", null, null);
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			
-			String username = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID)).trim();
-			String password = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PASS)).trim();
-			String resource = cursor.getString(cursor.getColumnIndex(AccountDbHelper.RESOURCE)).trim();
-			String service = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SERVER));
-			String tls = cursor.getString(cursor.getColumnIndex(AccountDbHelper.TLS));
+        Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.JID + " = '" + account + "'", null, null);
+                if (cursor != null && cursor.getCount() > 0) {
+                        cursor.moveToFirst();
+                        
+                        String username = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID)).trim();
+                        String password = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PASS)).trim();
+                        String resource = cursor.getString(cursor.getColumnIndex(AccountDbHelper.RESOURCE)).trim();
+                        String service = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SERVER));
+                        String tls = cursor.getString(cursor.getColumnIndex(AccountDbHelper.TLS));
             String sasl = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SASL));
-			String port = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PORT));
+                        String port = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PORT));
 
             ConnectionTask task = new ConnectionTask();
             task.execute(username, password, resource, service, tls, sasl, port);
             connectionTasks.put(username, task);
-			cursor.close();
-		}
+                        cursor.close();
+                }
     }
 
     public void joinRoom(final String account, final String group, final String nick, final String password) {
@@ -921,23 +922,24 @@ public class JTalkService extends Service {
             }.start();
         }
     }
-	
-	public void leaveRoom(String account, String group) {
-		if (getConferencesHash(account).containsKey(group)) {
-			try {
-				MultiUserChat muc = getConferencesHash(account).get(group);
-				if (muc.isJoined()) {
+        
+        public void leaveRoom(String account, String group) {
+                if (getConferencesHash(account).containsKey(group)) {
+                        try {
+                                MultiUserChat muc = getConferencesHash(account).get(group);
+                                if (muc.isJoined()) {
                     writeMucMessage(account, group, muc.getNickname(), getString(R.string.YouLeave));
                     muc.leave();
                 }
-			} catch (IllegalStateException ignored) { }
-			getConferencesHash(account).remove(group);
-	    }
-	    if (joinedConferences.containsKey(group)) joinedConferences.remove(group);
-	    Intent updateIntent = new Intent(Constants.PRESENCE_CHANGED);
-		sendBroadcast(updateIntent);
-	}
-	
+                        } catch (IllegalStateException ignored) { }
+                        getConferencesHash(account).remove(group);
+            setMessageList(account, group, new ArrayList<MessageItem>());
+            }
+            if (joinedConferences.containsKey(group)) joinedConferences.remove(group);
+            Intent updateIntent = new Intent(Constants.PRESENCE_CHANGED);
+                sendBroadcast(updateIntent);
+        }
+        
     public void leaveAllRooms(String account) {
         Hashtable<String, MultiUserChat> hash = conferences.get(account);
         if (!hash.isEmpty()) {
@@ -956,345 +958,342 @@ public class JTalkService extends Service {
     }
 
     public void addContact(String account, String jid, String name, String group) {
-	    try {
-		    final String[] groups = { group };
-		    getRoster(account).createEntry(jid, name, groups);
-	    } catch (XMPPException ignored) {    }
+            try {
+                    final String[] groups = { group };
+                    getRoster(account).createEntry(jid, name, groups);
+            } catch (XMPPException ignored) {    }
     }
   
     public void removeContact(String account, String jid) {
-    	try {
-    		Roster roster = getRoster(account);
-    		if (roster != null) {
-    			RosterEntry entry = roster.getEntry(jid);
-        		roster.removeEntry(entry);
-    		}
-    		
-//    		getContentResolver().delete(JTalkProvider.CONTENT_URI, "jid = '" + jid + "'", null);
-//	    		if (getMessagesHash(account).containsKey(jid)) {
-//	    			getMessagesHash(account).remove(jid);
-//	    		}
-    	} catch (XMPPException ignored) {  }
+        try {
+                Roster roster = getRoster(account);
+                if (roster != null) {
+                        RosterEntry entry = roster.getEntry(jid);
+                        roster.removeEntry(entry);
+                }
+                
+//              getContentResolver().delete(JTalkProvider.CONTENT_URI, "jid = '" + jid + "'", null);
+//                      if (getMessagesHash(account).containsKey(jid)) {
+//                              getMessagesHash(account).remove(jid);
+//                      }
+        } catch (XMPPException ignored) {  }
     }
 
     public boolean isAuthenticated() {
-    	for(XMPPConnection connection : connections.values()) {
-    		if (connection.isAuthenticated()) return true;
-    	}
-    	return false;
+        for(XMPPConnection connection : connections.values()) {
+                if (connection.isAuthenticated()) return true;
+        }
+        return false;
     }
     
-  	public boolean isAuthenticated(String account) {
-  		if (account != null && connections.containsKey(account)) {
-  			XMPPConnection connection = connections.get(account);
+        public boolean isAuthenticated(String account) {
+                if (account != null && connections.containsKey(account)) {
+                        XMPPConnection connection = connections.get(account);
             return connection.getUser() != null && connection.isAuthenticated();
-  		} else return false;
-  	}
+                } else return false;
+        }
 
-  	public void sendMessage(String account, String user, String message) {
-  		String resource = StringUtils.parseResource(user);
-  		if (resource.length() > 0) sendMessage(account, StringUtils.parseBareAddress(user), message, resource);
-  		else sendMessage(account, user, message, null);
-  	}
-  	
-  	private void sendMessage(String account, String user, String message, String resource) {
-  		if (connections.containsKey(account)) {
-  			final XMPPConnection connection = connections.get(account);
-  			
-  			String mil = System.currentTimeMillis()+"";
-  	  		
-  	  		final Message msg;
-  	  		if (resource != null && resource.length() > 0) {
+        public void sendMessage(String account, String user, String message) {
+                String resource = StringUtils.parseResource(user);
+                if (resource.length() > 0) sendMessage(account, StringUtils.parseBareAddress(user), message, resource);
+                else sendMessage(account, user, message, null);
+        }
+        
+        private void sendMessage(String account, String user, String message, String resource) {
+                if (connections.containsKey(account)) {
+                        final XMPPConnection connection = connections.get(account);
+                        
+                        String mil = System.currentTimeMillis()+"";
+                        
+                        final Message msg;
+                        if (resource != null && resource.length() > 0) {
                     msg = new Message(user + "/" + resource, Message.Type.chat);
                     if (getConferencesHash(account).containsKey(user)) user = user + "/" + resource;
                 }
-  	  		else msg = new Message(user, Message.Type.chat);
-  	  		msg.setPacketID(mil);
-  	  		msg.setBody(message);
-  	  		
-  	  		ReceiptExtension receipt = new ReceiptExtension(Receipt.request);
-  	  		msg.addExtension(receipt);
-  	  		
-  	  		Date date = new java.util.Date();
-  	        date.setTime(Long.parseLong(mil));
-  	        String time = DateFormat.getTimeFormat(this).format(date);
-  	        
-  	  		MessageItem msgItem = new MessageItem(account, user);
-  	  		msgItem.setTime(time);
-  	  		msgItem.setName(getResources().getString(R.string.Me));
-  	  		msgItem.setId(mil);
-  	  		msgItem.setBody(message);
-  	  		msgItem.setReceived(false);
-  	  		
-  	  		MessageLog.writeMessage(account, user, msgItem);
+                        else msg = new Message(user, Message.Type.chat);
+                        msg.setPacketID(mil);
+                        msg.setBody(message);
+                        
+                        ReceiptExtension receipt = new ReceiptExtension(Receipt.request);
+                        msg.addExtension(receipt);
+                        
+                        Date date = new java.util.Date();
+            String time = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date);
+                
+                        MessageItem msgItem = new MessageItem(account, user);
+                        msgItem.setTime(time);
+                        msgItem.setName(getResources().getString(R.string.Me));
+                        msgItem.setId(mil);
+                        msgItem.setBody(message);
+                        msgItem.setReceived(false);
+                        
+                        MessageLog.writeMessage(account, user, msgItem);
 
-  	  		new Thread() {
-  	  			@Override
-  	  			public void run() {
-  	  				if(connection != null && connection.getUser() != null) {
-  	  					connection.sendPacket(msg);
-  	  				}
-  	  			}
-  	  		}.start();
-  		}
-  	}
-  	
-  	public void editMessage(String account, final String user, final String id, final String message) {
-  		if (connections.containsKey(account)) {
-  			XMPPConnection connection = connections.get(account);
-  			String mil = System.currentTimeMillis()+"";
-  	  		
-  	  		final Message msg = new Message(user, Message.Type.chat);
-  	  		msg.setPacketID(mil);
-  	  		msg.setBody(message);
-  	  		
-  	  		ReplaceExtension replace = new ReplaceExtension(id);
-  	  		msg.addExtension(replace);
-  	  		
-  	  		if(connection != null && connection.getUser() != null) {
-  					connection.sendPacket(msg);
-  					MessageLog.editMessage(account, user, id, message);
-  			}
-  		}
-  	}
-  	
-  	public void sendPacket(String from, final Packet packet) {
-  		if (connections.containsKey(from)) {
-  			final XMPPConnection connection = connections.get(from);
-  			
-  			new Thread() {
-  	  			@Override
-  	  			public void run() {
-  	  				if(connection != null && connection.getUser() != null) {
-  	  					connection.sendPacket(packet);
-  	  				}
-  	  			}
-  	  		}.start();
-  		}
-  	}
-  	
-  	public void sendReceivedPacket(final XMPPConnection connection, String user, String id) {
-  		ReceiptExtension extension = new ReceiptExtension(Receipt.received);
-	  		final Message msg = new Message(user);
-	  		msg.setPacketID(id);
-	  		msg.addExtension(extension);
-	  		new Thread() {
-	  			@Override
-	  			public void run() {
-	  				if(connection != null && connection.getUser() != null) {
-	  					connection.sendPacket(msg);
-	  				}
-	  			}
-	  		}.start();
-  	}
+                        new Thread() {
+                                @Override
+                                public void run() {
+                                        if(connection != null && connection.getUser() != null) {
+                                                connection.sendPacket(msg);
+                                        }
+                                }
+                        }.start();
+                }
+        }
+        
+        public void editMessage(String account, final String user, final String id, final String message) {
+                if (connections.containsKey(account)) {
+                        XMPPConnection connection = connections.get(account);
+                        String mil = System.currentTimeMillis()+"";
+                        
+                        final Message msg = new Message(user, Message.Type.chat);
+                        msg.setPacketID(mil);
+                        msg.setBody(message);
+                        
+                        ReplaceExtension replace = new ReplaceExtension(id);
+                        msg.addExtension(replace);
+                        
+                        if(connection != null && connection.getUser() != null) {
+                                        connection.sendPacket(msg);
+                                        MessageLog.editMessage(account, user, id, message);
+                        }
+                }
+        }
+        
+        public void sendPacket(String from, final Packet packet) {
+                if (connections.containsKey(from)) {
+                        final XMPPConnection connection = connections.get(from);
+                        
+                        new Thread() {
+                                @Override
+                                public void run() {
+                                        if(connection != null && connection.getUser() != null) {
+                                                connection.sendPacket(packet);
+                                        }
+                                }
+                        }.start();
+                }
+        }
+        
+        public void sendReceivedPacket(final XMPPConnection connection, String user, String id) {
+                ReceiptExtension extension = new ReceiptExtension(Receipt.received);
+                        final Message msg = new Message(user);
+                        msg.setPacketID(id);
+                        msg.addExtension(extension);
+                        new Thread() {
+                                @Override
+                                public void run() {
+                                        if(connection != null && connection.getUser() != null) {
+                                                connection.sendPacket(msg);
+                                        }
+                                }
+                        }.start();
+        }
 
-  	public void setChatState(String account, String user, ChatState state) {
-  		if (connections.containsKey(account)) {
-  			final XMPPConnection connection = connections.get(account);
-  			
-  			if (user != null && getType(account, user) != Presence.Type.unavailable) {
-  	  			ChatStateExtension extension = new ChatStateExtension(state);
-  	  	  		final Message msg = new Message(user, Message.Type.chat);
-  	  	        msg.addExtension(extension);
-  	  	        new Thread() {
-  	  	  			@Override
-  	  	  			public void run() {
-  	  	  				if(connection != null && connection.getUser() != null) {
-  	  	  					connection.sendPacket(msg);
-  	  	  				}
-  	  	  			}
-  	  	  		}.start();
-  	  		}
-  		}
-  	}
-  	
-  	// Global status
-  	public void sendPresence(final String state, final String mode, final int priority) {
-  		for (final XMPPConnection connection : connections.values()) {
-  			new Thread() {
-  	  			public void run() {
-//  	  				setPreference(JTalkService.this, "currentPriority", priority);
-//  	       			setPreference(JTalkService.this, "currentMode", mode);
-//  	       			setPreference(JTalkService.this, "currentStatus", state);
-//  					setPreference(JTalkService.this, "currentSelection", getPosition(mode));
-//  					setPreference(JTalkService.this, "lastStatus"+mode, state);
-  						
-  	  				if (connection.isAuthenticated()) {
-  	  					String account = StringUtils.parseBareAddress(connection.getUser());
-  	  					if (!mode.equals("unavailable")) {
-  	  						Presence presence = new Presence(Presence.Type.available);
-  	  	  					if (state != null) presence.setStatus(state);
-  	  	  					presence.setMode(Presence.Mode.valueOf(mode));
-  	  	  					presence.setPriority(priority);
-  	  	  					connection.sendPacket(presence);
-  	  	  					
-  	  	  					for (Hashtable<String, MultiUserChat> hash : conferences.values()) {
-  	  	  						Enumeration<String> e = hash.keys();
-  	  	  						while(e.hasMoreElements()) {
-  	  	  							try {
-  	  	  								MultiUserChat muc = hash.get(e.nextElement());
-  	  	  								if (muc.isJoined())	muc.changeAvailabilityStatus(state, Presence.Mode.valueOf(mode));
-  	  	  							} catch (IllegalStateException ignored) { }
-  	  	  						}
-  	  	  					}
-  	  	  					Notify.updateNotify();
-  	  					} else {
-  	  						removeConnectionListener(account);
-  	  						Presence presence = new Presence(Presence.Type.unavailable, state, priority, null);
-  	  						connection.disconnect(presence);
-  	  						if (!isAuthenticated()) Notify.offlineNotify(state);
-  	  					}
-  	  				} else {
-  	  					if (mode.equals("unavailable")) {
-  	  						if (!isAuthenticated()) Notify.offlineNotify(state);
-  	  					}
-  	  				}
-  	  				
-  					Intent i = new Intent(Constants.UPDATE);
-  		            sendBroadcast(i);
-  		            	
-  		            i = new Intent(Constants.UPDATE);
-  		            sendBroadcast(i);
-  	  			}
-  	  		}.start();
-  		}
-  	}
-  	
-  	public void sendPresence(final String account, final String state, final String mode, final int priority) {
-  		if (connections.containsKey(account)) {
-  			final XMPPConnection connection = connections.get(account);
-  			
-  			new Thread() {
-  	  			public void run() {
-  	  				if (connection.isAuthenticated()) {
-  	  					String account = StringUtils.parseBareAddress(connection.getUser());
-  	  					if (!mode.equals("unavailable")) {
-  	  						Presence presence = new Presence(Presence.Type.available);
-  	  	  					if (state != null) presence.setStatus(state);
-  	  	  					presence.setMode(Presence.Mode.valueOf(mode));
-  	  	  					presence.setPriority(priority);
-  	  	  					connection.sendPacket(presence);
-  	  	  					
-  	  	  					Enumeration<String> e = getConferencesHash(account).keys();
-  	  	  					while(e.hasMoreElements()) {
-  	  	  						try {
-  		  							MultiUserChat muc = getConferencesHash(account).get(e.nextElement());
-  		  							if (muc.isJoined())	muc.changeAvailabilityStatus(state, Presence.Mode.valueOf(mode));
-  		  						} catch (IllegalStateException ignored) { }
-  	  	  					}
-  	  	  					
-  	  	  					Notify.updateNotify();
-  	  					} else {
-  	  						removeConnectionListener(account);
-  	  						Presence presence = new Presence(Presence.Type.unavailable, state, priority, null);
-  	  						connection.disconnect(presence);
-  	  						if (!isAuthenticated()) Notify.offlineNotify(state);
-  	  					}
-  	  				} else {
-  	  					if (mode.equals("unavailable")) {
-  	  						if (isAuthenticated()) Notify.offlineNotify(state);
-  	  					}
-  	  				}
+        public void setChatState(String account, String user, ChatState state) {
+                if (connections.containsKey(account)) {
+                        final XMPPConnection connection = connections.get(account);
+                        
+                        if (user != null && getType(account, user) != Presence.Type.unavailable) {
+                                ChatStateExtension extension = new ChatStateExtension(state);
+                                final Message msg = new Message(user, Message.Type.chat);
+                        msg.addExtension(extension);
+                        new Thread() {
+                                        @Override
+                                        public void run() {
+                                                if(connection != null && connection.getUser() != null) {
+                                                        connection.sendPacket(msg);
+                                                }
+                                        }
+                                }.start();
+                        }
+                }
+        }
+        
+        // Global status
+        public void sendPresence(final String state, final String mode, final int priority) {
+                for (final XMPPConnection connection : connections.values()) {
+                        new Thread() {
+                                public void run() {
+//                                      setPreference(JTalkService.this, "currentPriority", priority);
+//                              setPreference(JTalkService.this, "currentMode", mode);
+//                              setPreference(JTalkService.this, "currentStatus", state);
+//                                      setPreference(JTalkService.this, "currentSelection", getPosition(mode));
+//                                      setPreference(JTalkService.this, "lastStatus"+mode, state);
+                                                
+                                        if (connection.isAuthenticated()) {
+                                                String account = StringUtils.parseBareAddress(connection.getUser());
+                                                if (!mode.equals("unavailable")) {
+                                                        Presence presence = new Presence(Presence.Type.available);
+                                                        if (state != null) presence.setStatus(state);
+                                                        presence.setMode(Presence.Mode.valueOf(mode));
+                                                        presence.setPriority(priority);
+                                                        connection.sendPacket(presence);
+                                                        
+                                                        for (Hashtable<String, MultiUserChat> hash : conferences.values()) {
+                                                                Enumeration<String> e = hash.keys();
+                                                                while(e.hasMoreElements()) {
+                                                                        try {
+                                                                                MultiUserChat muc = hash.get(e.nextElement());
+                                                                                if (muc.isJoined())     muc.changeAvailabilityStatus(state, Presence.Mode.valueOf(mode));
+                                                                        } catch (IllegalStateException ignored) { }
+                                                                }
+                                                        }
+                                                        Notify.updateNotify();
+                                                } else {
+                                                        removeConnectionListener(account);
+                                                        Presence presence = new Presence(Presence.Type.unavailable, state, priority, null);
+                                                        connection.disconnect(presence);
+                                                        if (!isAuthenticated()) Notify.offlineNotify(state);
+                                                }
+                                        } else {
+                                                if (mode.equals("unavailable")) {
+                                                        if (!isAuthenticated()) Notify.offlineNotify(state);
+                                                }
+                                        }
+                                        
+                                        Intent i = new Intent(Constants.UPDATE);
+                            sendBroadcast(i);
+                                
+                            i = new Intent(Constants.UPDATE);
+                            sendBroadcast(i);
+                                }
+                        }.start();
+                }
+        }
+        
+        public void sendPresence(final String account, final String state, final String mode, final int priority) {
+                if (connections.containsKey(account)) {
+                        final XMPPConnection connection = connections.get(account);
+                        
+                        new Thread() {
+                                public void run() {
+                                        if (connection.isAuthenticated()) {
+                                                String account = StringUtils.parseBareAddress(connection.getUser());
+                                                if (!mode.equals("unavailable")) {
+                                                        Presence presence = new Presence(Presence.Type.available);
+                                                        if (state != null) presence.setStatus(state);
+                                                        presence.setMode(Presence.Mode.valueOf(mode));
+                                                        presence.setPriority(priority);
+                                                        connection.sendPacket(presence);
+                                                        
+                                                        Enumeration<String> e = getConferencesHash(account).keys();
+                                                        while(e.hasMoreElements()) {
+                                                                try {
+                                                                        MultiUserChat muc = getConferencesHash(account).get(e.nextElement());
+                                                                        if (muc.isJoined())     muc.changeAvailabilityStatus(state, Presence.Mode.valueOf(mode));
+                                                                } catch (IllegalStateException ignored) { }
+                                                        }
+                                                        
+                                                        Notify.updateNotify();
+                                                } else {
+                                                        removeConnectionListener(account);
+                                                        Presence presence = new Presence(Presence.Type.unavailable, state, priority, null);
+                                                        connection.disconnect(presence);
+                                                        if (!isAuthenticated()) Notify.offlineNotify(state);
+                                                }
+                                        } else {
+                                                if (mode.equals("unavailable")) {
+                                                        if (isAuthenticated()) Notify.offlineNotify(state);
+                                                }
+                                        }
                     setState(account, state);
-  	  				
-  					Intent i = new Intent(Constants.UPDATE);
-  		            sendBroadcast(i);
-  		            	
-  		            i = new Intent(Constants.UPDATE);
-  		            sendBroadcast(i);
-  	  			}
-  	  		}.start();
-  		}
-  	}
-  	
-  	public void sendPresenceTo(String account, final String to, final String state, final String mode, final int priority) {
-  		if (connections.containsKey(account)) {
-  			final XMPPConnection connection = connections.get(account);
-  			
-  			new Thread() {
-  	  			public void run() {
-  	  				if (connection.getUser() != null) {
-  	  					Presence presence;
-  	  					
-  	  					if (!mode.equals("unavailable")) {
-  	  						presence = new Presence(Presence.Type.available);
-  	  						presence.setMode(Presence.Mode.valueOf(mode));
-  	  					}
-  	  					else presence = new Presence(Presence.Type.unavailable);
-  	  	  				if (state != null) presence.setStatus(state);
-  	  	  				presence.setTo(to);
-  	  	  				presence.setPriority(priority);
-  	  	  				connection.sendPacket(presence);
-  	  				}
-  	  			}
-  	  		}.start();
-  		}
-  	}
-  	
-  	public void sendLocation(final Location location) {
-  		for (final XMPPConnection connection : connections.values()) {
-  			if (connection.isAuthenticated()) {
-  				IQ iq = new IQ() {
-  					public String getChildElementXML() {
-  						StringBuilder sb = new StringBuilder();
-  						sb.append("<pubsub xmlns='http://jabber.org/protocol/pubsub'>");
-  						sb.append("<publish node='http://jabber.org/protocol/geoloc'>");
-  						sb.append("<item><geoloc xmlns='http://jabber.org/protocol/geoloc'>");
-  						if (location != null) {
-  							final float accuracy = location.getAccuracy();
-  							final double lat = location.getLatitude();
-  							final double lon = location.getLongitude();
-  							
-  							Bundle extras = location.getExtras();
-  							for (String s : extras.keySet()) {
-  								Log.i("Location", s);
-  							}
+                                        
+                                        Intent i = new Intent(Constants.UPDATE);
+                            sendBroadcast(i);
+                                
+                            i = new Intent(Constants.UPDATE);
+                            sendBroadcast(i);
+                                }
+                        }.start();
+                }
+        }
+        
+        public void sendPresenceTo(String account, final String to, final String state, final String mode, final int priority) {
+                if (connections.containsKey(account)) {
+                        final XMPPConnection connection = connections.get(account);
+                        
+                        new Thread() {
+                                public void run() {
+                                        if (connection.getUser() != null) {
+                                                Presence presence;
+                                                
+                                                if (!mode.equals("unavailable")) {
+                                                        presence = new Presence(Presence.Type.available);
+                                                        presence.setMode(Presence.Mode.valueOf(mode));
+                                                }
+                                                else presence = new Presence(Presence.Type.unavailable);
+                                                if (state != null) presence.setStatus(state);
+                                                presence.setTo(to);
+                                                presence.setPriority(priority);
+                                                connection.sendPacket(presence);
+                                        }
+                                }
+                        }.start();
+                }
+        }
+        
+        public void sendLocation(final Location location) {
+                for (final XMPPConnection connection : connections.values()) {
+                        if (connection.isAuthenticated()) {
+                                IQ iq = new IQ() {
+                                        public String getChildElementXML() {
+                                                StringBuilder sb = new StringBuilder();
+                                                sb.append("<pubsub xmlns='http://jabber.org/protocol/pubsub'>");
+                                                sb.append("<publish node='http://jabber.org/protocol/geoloc'>");
+                                                sb.append("<item><geoloc xmlns='http://jabber.org/protocol/geoloc'>");
+                                                if (location != null) {
+                                                        final float accuracy = location.getAccuracy();
+                                                        final double lat = location.getLatitude();
+                                                        final double lon = location.getLongitude();
+                                                        
+                                                        Bundle extras = location.getExtras();
+                                                        for (String s : extras.keySet()) {
+                                                                Log.i("Location", s);
+                                                        }
 
-  							sb.append("<accuracy>").append(accuracy).append("</accuracy>");
-  							sb.append("<lat>").append(lat).append("</lat>");
-  							sb.append("<lon>").append(lon).append("</lon>");
-  						}
-  						sb.append("</geoloc></item></publish></pubsub>");
-  		   				return sb.toString();
-  		            }
-  				};
-  				iq.setPacketID(System.currentTimeMillis()+"");
-  				iq.setType(IQ.Type.SET);
-  				connection.sendPacket(iq);
-  			}
-  		}
-	}
+                                                        sb.append("<accuracy>").append(accuracy).append("</accuracy>");
+                                                        sb.append("<lat>").append(lat).append("</lat>");
+                                                        sb.append("<lon>").append(lon).append("</lon>");
+                                                }
+                                                sb.append("</geoloc></item></publish></pubsub>");
+                                                return sb.toString();
+                            }
+                                };
+                                iq.setPacketID(System.currentTimeMillis()+"");
+                                iq.setType(IQ.Type.SET);
+                                connection.sendPacket(iq);
+                        }
+                }
+        }
 
-  	public int getPosition(String mode) {
-  		int pos;
-  		if (mode.equals("available"))
-  			pos = 0;
-  		else if (mode.equals("away"))
-  			pos = 1;
-  		else if (mode.equals("xa"))
-  			pos = 2;
-  		else if (mode.equals("dnd"))
-  			pos = 3;
-  		else if (mode.equals("chat"))
-  			pos = 4;
-  		else 
-  			pos = 0;
-  		return pos;
-  	}
-  	
-  	public void setPreference(String name, Object value) {
-  		if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(this);
-  		SharedPreferences.Editor editor = prefs.edit();
-  		if(value instanceof String) editor.putString(name, String.valueOf(value));
-  		else if(value instanceof Integer) editor.putInt(name, Integer.parseInt(String.valueOf(value)));
-  		else if(value instanceof Boolean) editor.putBoolean(name, (Boolean)value);
-  		editor.commit();
-  	}
+        public int getPosition(String mode) {
+                int pos;
+                if (mode.equals("available"))
+                        pos = 0;
+                else if (mode.equals("away"))
+                        pos = 1;
+                else if (mode.equals("xa"))
+                        pos = 2;
+                else if (mode.equals("dnd"))
+                        pos = 3;
+                else if (mode.equals("chat"))
+                        pos = 4;
+                else 
+                        pos = 0;
+                return pos;
+        }
+        
+        public void setPreference(String name, Object value) {
+                if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = prefs.edit();
+                if(value instanceof String) editor.putString(name, String.valueOf(value));
+                else if(value instanceof Integer) editor.putInt(name, Integer.parseInt(String.valueOf(value)));
+                else if(value instanceof Boolean) editor.putBoolean(name, (Boolean)value);
+                editor.commit();
+        }
 
     private void writeMucMessage(String account, String group, String nick, String message) {
-        Date date = new java.util.Date();
-        date.setTime(Long.parseLong(System.currentTimeMillis()+""));
-        String time = DateFormat.getTimeFormat(getInstance()).format(date);
+        String time = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());
 
         MessageItem item = new MessageItem(account, group + "/" + nick);
         item.setBody(message);
@@ -1302,13 +1301,13 @@ public class JTalkService extends Service {
         item.setName(StringUtils.parseName(group));
         item.setTime(time);
 
-        MessageLog.writeMucMessage(group, nick, item);
+        MessageLog.writeMucMessage(account, group, nick, item);
     }
 
-  	private void clearAll() {
+        private void clearAll() {
         activeChats.clear();
         msgCounter.clear();
-  		autoStatusTimer.cancel();
+                autoStatusTimer.cancel();
         collapsedGroups.clear();
         composeList.clear();
         unreadMessages.clear();
@@ -1318,13 +1317,13 @@ public class JTalkService extends Service {
         vcards.clear();
         textHash.clear();
         messagesCount.clear();
-  	}
-  	
-  	public void configure() {
-  		ProviderManager pm = ProviderManager.getInstance();
-  		
-  		pm.addIQProvider("query","jabber:iq:private", new PrivateDataManager.PrivateDataIQProvider());
-  		pm.addIQProvider("query", "jabber:iq:version", new VersionProvider());
+        }
+        
+        public void configure() {
+                ProviderManager pm = ProviderManager.getInstance();
+                
+                pm.addIQProvider("query","jabber:iq:private", new PrivateDataManager.PrivateDataIQProvider());
+                pm.addIQProvider("query", "jabber:iq:version", new VersionProvider());
         
          //  Roster Exchange
          pm.addExtensionProvider("x","jabber:x:roster", new RosterExchangeProvider());
@@ -1333,16 +1332,16 @@ public class JTalkService extends Service {
          pm.addExtensionProvider("c", CapsExtension.XMLNS, new CapsExtensionProvider());
          
          // Messages Receipts
-   		 pm.addExtensionProvider("request","urn:xmpp:receipts", new ReceiptExtension.Provider());
-   		 pm.addExtensionProvider("received","urn:xmpp:receipts", new ReceiptExtension.Provider());
-   		 
-   		 // Last Message Correction
-   		 pm.addExtensionProvider("replace", "urn:xmpp:message-correct:0", new ReplaceExtension.Provider());
-   		
-   		 // Captcha
-   		 pm.addExtensionProvider("captcha", "urn:xmpp:captcha", new CaptchaExtension.Provider());
-   		 pm.addExtensionProvider("data", "urn:xmpp:bob", new BobExtension.Provider());
-   		 
+                 pm.addExtensionProvider("request","urn:xmpp:receipts", new ReceiptExtension.Provider());
+                 pm.addExtensionProvider("received","urn:xmpp:receipts", new ReceiptExtension.Provider());
+                 
+                 // Last Message Correction
+                 pm.addExtensionProvider("replace", "urn:xmpp:message-correct:0", new ReplaceExtension.Provider());
+                
+                 // Captcha
+                 pm.addExtensionProvider("captcha", "urn:xmpp:captcha", new CaptchaExtension.Provider());
+                 pm.addExtensionProvider("data", "urn:xmpp:bob", new BobExtension.Provider());
+                 
          //  Chat State
          pm.addExtensionProvider("active","http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
          pm.addExtensionProvider("composing","http://jabber.org/protocol/chatstates", new ChatStateExtension.Provider());
@@ -1408,17 +1407,10 @@ public class JTalkService extends Service {
          pm.addExtensionProvider("bad-payload", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.BadPayloadError());
          pm.addExtensionProvider("bad-sessionid", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.BadSessionIDError());
          pm.addExtensionProvider("session-expired", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider.SessionExpiredError());
-  	}
+        }
 
     public class ConnectionTask extends AsyncTask<String, Integer, String> {
         Intent intent = new Intent(Constants.UPDATE);
-
-        @Override
-        protected void onPreExecute() {
-            //  			state = getString(R.string.Connecting) + "...";
-            //            sendBroadcast(intent);
-            //            Notify.offlineNotify(getString(R.string.Connecting));
-        }
 
         @Override
         protected String doInBackground(String... args) {
@@ -1438,6 +1430,8 @@ public class JTalkService extends Service {
                 sendBroadcast(intent);
                 return null;
             } else {
+                Notify.connecingNotify(username);
+
                 setState(username, getString(R.string.Connecting));
                 sendBroadcast(new Intent(Constants.UPDATE));
 
@@ -1597,7 +1591,7 @@ public class JTalkService extends Service {
                 try {
                     OfflineMessageManager omm = new OfflineMessageManager(connection);
                     omm.deleteMessages();
-                } catch (Exception ignored) {	}
+                } catch (Exception ignored) {   }
 
                 setState(username, status);
                 Notify.updateNotify();

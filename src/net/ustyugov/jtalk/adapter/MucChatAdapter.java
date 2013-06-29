@@ -111,7 +111,7 @@ public class MucChatAdapter extends ArrayAdapter<MessageItem> implements TextLin
         int fontSize = Integer.parseInt(context.getResources().getString(R.string.DefaultFontSize));
         try {
             fontSize = Integer.parseInt(prefs.getString("FontSize", context.getResources().getString(R.string.DefaultFontSize)));
-        } catch (NumberFormatException ignored) {	}
+        } catch (NumberFormatException ignored) {       }
 
         View v = convertView;
         if (v == null) {
@@ -154,19 +154,12 @@ public class MucChatAdapter extends ArrayAdapter<MessageItem> implements TextLin
                 ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), idx, idx + n.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else {
                 int idx = message.indexOf(n);
+                if (message.contains(nick)) {
+                    ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    ssb.setSpan(new ForegroundColorSpan(Colors.HIGHLIGHT_TEXT), 0, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
                 ssb.setSpan(new ForegroundColorSpan(Colors.INBOX_MESSAGE), idx, idx + n.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), idx, idx + n.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-
-            if (nick != null) {
-                int pos = 0;
-                Pattern nickPattern = Pattern.compile(nick, Pattern.CASE_INSENSITIVE);
-                Matcher nickMatcher = nickPattern.matcher(message);
-                while (nickMatcher.find(pos)) {
-                    ssb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), nickMatcher.start(), nickMatcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    ssb.setSpan(new ForegroundColorSpan(Colors.HIGHLIGHT_TEXT), nickMatcher.start(), nickMatcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    pos = nickMatcher.end();
-                }
             }
         }
 
@@ -279,10 +272,12 @@ public class MucChatAdapter extends ArrayAdapter<MessageItem> implements TextLin
     }
 
     private String createTimeString(String time) {
-        Date d = new Date();
-        java.text.DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        String currentDate = df.format(d).substring(0,10);
-        if (currentDate.equals(time.substring(0,10))) return "(" + time.substring(11) + ")";
-        else return "(" + time + ")";
+        try {
+            Date d = new Date();
+            java.text.DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String currentDate = df.format(d).substring(0,10);
+            if (currentDate.equals(time.substring(0,10))) return "(" + time.substring(11) + ")";
+            else return "(" + time + ")";
+        } catch (Exception e) { return "( )"; }
     }
 }
