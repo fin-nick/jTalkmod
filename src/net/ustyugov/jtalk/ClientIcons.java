@@ -60,10 +60,6 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_emess);
 							} else if (node.toLowerCase().contains("gajim.org")) {
 								imageView.setImageResource(R.drawable.client_gajim);
-                            } else if (node.toLowerCase().contains("palringo.com/caps")) {
-								imageView.setImageResource(R.drawable.client_utalk);
-							} else if (node.toLowerCase().contains("vacuum-im.googlecode.com")) {
-								imageView.setImageResource(R.drawable.client_vacuum);
 							} else if (node.toLowerCase().contains("gmail")) {
 								imageView.setImageResource(R.drawable.client_gmail);
                             } else if (node.toLowerCase().contains("isida-bot.com")) {
@@ -134,6 +130,12 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_tigase);
 							} else if (node.toLowerCase().contains("tkabber.jabber.ru/")) {
 								imageView.setImageResource(R.drawable.client_tkabber);
+                            } else if (node.toLowerCase().contains("trillian.im/caps")) {
+								imageView.setImageResource(R.drawable.client_trillian);
+                            } else if (node.toLowerCase().contains("palringo.com/caps")) {
+								imageView.setImageResource(R.drawable.client_utalk);
+                            } else if (node.toLowerCase().contains("vacuum-im.googlecode.com")) {
+								imageView.setImageResource(R.drawable.client_vacuum);
 							} else if (node.toLowerCase().contains("telepathy.freedesktop.org")) {
 								imageView.setImageResource(R.drawable.client_telepathy);
 							} else if (node.toLowerCase().contains("online.yandex.ru")) {
@@ -144,8 +146,6 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_yaonlinesymbian);
 							} else if (node.toLowerCase().contains("pjc.googlecode.com")) {
 								imageView.setImageResource(R.drawable.client_pjc);
-							} else if (node.toLowerCase().contains("trillian")) {
-								imageView.setImageResource(R.drawable.client_trillian);
                             } else if (node.toLowerCase().contains("qip")) {
 								imageView.setImageResource(R.drawable.client_qip);
                             } else if (node.toLowerCase().contains("2010.qip.ru/caps")) {
