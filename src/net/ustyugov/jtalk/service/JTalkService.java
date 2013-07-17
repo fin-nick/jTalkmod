@@ -139,6 +139,7 @@ public class JTalkService extends Service {
     private Hashtable<String, VCard> vcards = new Hashtable<String, VCard>();
     private Hashtable<String, ConListener> conListeners = new Hashtable<String, ConListener>();
     private Hashtable<String, ConnectionTask> connectionTasks = new Hashtable<String, ConnectionTask>();
+    private Hashtable<String, Timer> pingTimers = new Hashtable<String, Timer>();
     private String currentJid = "me";
     private String sidebarMode = "users";
     private String globalState = "";
@@ -187,9 +188,16 @@ public class JTalkService extends Service {
     }
     
     private void addConnectionListener(String account, XMPPConnection connection) {
-        ConListener listener = new ConListener(this, account);
-        connection.addConnectionListener(listener);
-        conListeners.put(account, listener);
+            if (!conListeners.containsKey(account)) {
+            ConListener listener = new ConListener(this, account);
+            connection.addConnectionListener(listener);
+            conListeners.put(account, listener);
+        }
+    }
+
+    public ConListener getConnectionListener(String account) {
+        if (conListeners.containsKey(account)) return conListeners.get(account);
+        else return null;
     }
     
     public Collection<XMPPConnection> getAllConnections() {
@@ -743,6 +751,11 @@ public class JTalkService extends Service {
                         String account = StringUtils.parseBareAddress(connection.getUser());
                 if (isAuthenticated(account)) {
                 if (connectionTasks.containsKey(account)) { connectionTasks.remove(account).cancel(true); }
+                if (pingTimers.containsKey(account)) {
+                    Timer timer = pingTimers.remove(account);
+                    timer.cancel();
+                    timer.purge();
+                }
                         removeConnectionListener(account);
                                 Presence presence = new Presence(Presence.Type.unavailable, "", 0, null);
                                 connection.disconnect(presence);
@@ -758,6 +771,12 @@ public class JTalkService extends Service {
         if (connections.containsKey(account)) {
             if (connectionTasks.containsKey(account)) {
                 connectionTasks.remove(account).cancel(true);
+            }
+            
+            if (pingTimers.containsKey(account)) {
+                Timer timer = pingTimers.remove(account);
+                timer.cancel();
+                timer.purge();
             }
 
                 XMPPConnection connection = connections.remove(account);
@@ -793,7 +812,7 @@ public class JTalkService extends Service {
         new Thread() {
                 @Override
                 public void run() {
-                        disconnect(account);
+//                        disconnect(account);
                         connect(account);
                 }
         }.start();
@@ -1535,11 +1554,14 @@ public class JTalkService extends Service {
                 fileTransferManager = new FileTransferManager(connection);
                 fileTransferManager.addFileTransferListener(new IncomingFileListener());
 
-                VCard vCard = new VCard();
-                try {
-                    vCard.load(connection, username);
-                } catch (XMPPException ignored) { }
-                setVCard(username, vCard);
+                File file = new File(Constants.PATH + "/" + username);
+                if (!file.exists()) {
+                    VCard vCard = new VCard();
+                    try {
+                        vCard.load(connection, username);
+                    } catch (XMPPException ignored) { }
+                    setVCard(username, vCard);
+                }
 
                 try {
                     MultiUserChat.addInvitationListener(connection, new InviteListener(username));
@@ -1586,6 +1608,7 @@ public class JTalkService extends Service {
                             new PingTask(username).execute();
                         }
                     }, timeout, timeout * 2);
+                    pingTimers.put(username, pingTimer);
                 }
 
                 try {

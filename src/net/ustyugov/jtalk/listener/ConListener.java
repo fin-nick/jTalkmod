@@ -17,6 +17,7 @@
 
 package net.ustyugov.jtalk.listener;
 
+import android.util.Log;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.Notify;
 import net.ustyugov.jtalk.service.JTalkService;
@@ -26,29 +27,46 @@ import android.content.Context;
 import android.content.Intent;
 
 public class ConListener implements ConnectionListener {
-	private Context context; 
-	private String account;
-	private JTalkService service;
+        private Context context; 
+        private String account;
+        private JTalkService service;
+    private boolean isStarted = false;
 
-	public ConListener(Context context, String account) {
-		this.context = context;
-		this.account = account;
-		this.service = JTalkService.getInstance();
-	}
+        public ConListener(Context context, String account) {
+                this.context = context;
+                this.account = account;
+                this.service = JTalkService.getInstance();
+        }
 
-	public void connectionClosed() {
-        context.sendBroadcast(new Intent(Constants.UPDATE));
-        service.leaveAllRooms(account);
-	}
+        public void connectionClosed() {
+        connectionClosedOnError(null);
+        }
 
-	public void connectionClosedOnError(Exception e) {
+        public void connectionClosedOnError(Exception e) {
+        Log.e("ConListener", "connectionClosedOnError");
         if (!service.isAuthenticated()) Notify.offlineNotify("Connection closed");
         service.leaveAllRooms(account);
         service.setState(account, "Connection closed");
         context.sendBroadcast(new Intent(Constants.UPDATE));
-	}
 
-	public void reconnectingIn(int seconds) { }
-	public void reconnectionSuccessful() { }
-	public void reconnectionFailed(Exception e) { }
+        if (!isStarted) {
+            isStarted = true;
+            Log.e("ConListener", "Trying to connect");
+            new Thread() {
+                public void run() {
+                    while (!service.isAuthenticated(account)) {
+                        service.reconnect(account);
+                        try {
+                            Thread.sleep(25000);
+                        } catch (Exception ignored) { }
+                    }
+                    isStarted = false;
+                }
+            }.start();
+        }
+        }
+
+        public void reconnectingIn(int seconds) { }
+        public void reconnectionSuccessful() { }
+        public void reconnectionFailed(Exception e) { }
 }
