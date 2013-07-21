@@ -54,6 +54,8 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_fatal);
                             } else if (node.toLowerCase().contains("jabga.ru")) {
 								imageView.setImageResource(R.drawable.client_fj);
+                            } else if (node.toLowerCase().contains("www.freq-bot.net")) {
+								imageView.setImageResource(R.drawable.client_freq);
                             } else if (node.toLowerCase().contains("coccinella.sourceforge.net/protocol/caps")) {
 								imageView.setImageResource(R.drawable.client_coccinella);
 							} else if (node.toLowerCase().contains("emess")) {
