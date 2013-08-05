@@ -49,7 +49,7 @@ public class DragAndDropListener implements AdapterView.OnItemLongClickListener 
         String name = message.getName();
         String t = "(" + time + ")";
         if (showtime) name = t + " " + name;
-        String text = "> " + name + ": " + body + "\n";
+        String text = "» " + name + ": " + body + "»" + "\n";
 
         ClipData.Item item = new ClipData.Item(text);
 
