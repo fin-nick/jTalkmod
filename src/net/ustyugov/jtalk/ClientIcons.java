@@ -116,7 +116,7 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_pandion);
 							} else if (node.toLowerCase().contains("pidgin")) {
 								imageView.setImageResource(R.drawable.client_pidgin);
-							} else if (node.toLowerCase().contains("oneteam.im")) {
+							} else if (node.toLowerCase().contains("oneteam.im/caps")) {
 								imageView.setImageResource(R.drawable.client_oneteam);
 							} else if (node.toLowerCase().contains("oneteam_iphone")) {
 								imageView.setImageResource(R.drawable.client_oneteamiphone);

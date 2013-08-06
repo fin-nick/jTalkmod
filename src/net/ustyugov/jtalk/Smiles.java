@@ -55,60 +55,31 @@ public class Smiles implements DialogInterface.OnClickListener {
 	private static final String[] LAUGH = {"*ROFL*", "*rofl*"};
     private static final String[] GRIN = {":-D", ":D", "*LOL*", "*lol*", ":lol:", "=D"};
 	private static final String[] TEASE = {":-P", ":P", ":-p", ":p"};
-	private static final String[] FUCK = {"*FUCK*", "*fuck*", "*FUCK_YOU*"};
+	private static final String[] SERIOUS = {":-|", ":|", "=|"};
 	private static final String[] AMAZE = {":-O", ":-o", ":o", ":O"};
 	private static final String[] OO = {"O_o", "o_O", "O_O"};
     private static final String[] BOTAN = {"*BOTAN*", "*UMNIK*", "*BOTANIK*"};
-    private static final String[] MUSIC = {"*MUSIC*", "*music*", "[:-}"};
+    private static final String[] DONTKNOW = {"*DONT_KNOW*", "*unknown*", "*UNKNOWN*"};
     private static final String[] KGB = {"8-)", "B-)", "B)"};
     private static final String[] TSS = {":-X", "*TSSS*", "*SECRET*"};
     private static final String[] NO = {"*NO*", ":no:"};
     private static final String[] INLOVE = {"*IN_LOVE*", "*INLOVE*"};
     private static final String[] CRY = {":'(", ":'-(", "*CRY*", ";-(", ";("};
     private static final String[] SORRY = {"*SORRY*", "*sorry*", ":sorry:"};
-    private static final String[] COFFE = {"*COFFE*", "*coffe*", "*tea*"};
+    private static final String[] CRAFTY = {":->", "*:->*", ":>"};
     private static final String[] ANGRY = {"*ANGRY*", ":-@", "*angry*"};
     private static final String[] FLOWER = {"@};-", "*BOUQUET*", "@}->-"};
     private static final String[] TIRED = {"*TIRED*", "*tired*", "(Z)"};
     private static final String[] HEART = {"*GIVE_HEART*", "*give_heart*"};
     private static final String[] VAVA = {"*VAVA*", "*BLACK_EYE*", "*BLACKEYE*"};
     private static final String[] SCARE = {"*SCARE*", "*PANIC*", "*shock_scare*"};
-    private static final String[] READ = {"*READ*", "*READING*", "*reading*"};
-    private static final String[] FOOD = {"*FOOD*", "*food*", "(pl)"};
-    private static final String[] TAUNT = {"*TAUNT*", "*taunt*"};
-    private static final String[] DANCE = {"*DANCE*", "*dance*", "*dance_jaga*"};
-    private static final String[] GIRLDRINK = {"*GIRL DRINK*", "*GIRL_DRINK*"};
-    private static final String[] ASS = {"*ASS*", "(_|_)", "*ass*", "( | )"};
-    private static final String[] CENSORED = {"*CENSORED*", "*censored*"};
-    private static final String[] WRITE = {"*WRITE*", "*write*"};
-    private static final String[] CONFUSED = {":-[", ":["};
-    private static final String[] BEER = {"*DRINK*", "*BEER*", "*beer*"};
-    private static final String[] POPCORN = {"*POPCORN*"};
-    private static final String[] COOL = {"*COOL*", "*ROCK*", "*COOLBOY*"};
-    private static final String[] NOSE = {"*nose*"};
-    private static final String[] ALKASH = {"*ALCOHOLIC*", "*alcoholic*", "*drink_drunk*"};
-    private static final String[] SICK = {":-!", ":!", "*SICK*"};
-    private static final String[] WHISTLING = {"*WHISTLE*", "*whistling*"};
-    private static final String[] HELP = {"*HELP*", "*SOS*", "*HELP_ME*"};
-    private static final String[] WALL = {"*WALL*", "*wall*"};
-    private static final String[] FOOL = {"*FOOL*", "*fool*"};
-    private static final String[] SMOKE = {"*SMOKE*", "*SMOKING*"};
-    private static final String[] STRONG = {"*BB*", "*STRONG*", "*bb*"};
-    private static final String[] RUSSIAN = {"*RUSSIAN*"};
-    private static final String[] HACKER = {"*HACKER*"};
-    private static final String[] CRAZY = {"*CRAZY*", "*crazy*"};
-    private static final String[] KING = {"*KING*", "*king*"};
-    private static final String[] KUKU = {"*KU-KU*", "*ku-ku*", "*KUKU*"};
-    private static final String[] SLEEP = {"*SLEEP*", "*LAZY*", "*sleep*"};
-    private static final String[] THUMBSUP = {"*THUMBS_UP*", "*THUMBSUP*", "*thumbs_up*"};
-    private static final String[] DONTKNOW = {"*DONT_KNOW*", "*unknown*", "*UNKNOWN*"};
 	
 	private Hashtable<String, List<String>> table;
 	private Hashtable<String, Bitmap> smiles = new Hashtable<String, Bitmap>();
 	private String path;
 	private Activity activity;
 	private SmilesDialogAdapter adapter;
-	private int columns = 5;
+	private int columns = 3;
     private int size = 24;
 
 	public Smiles(Activity activity) {
@@ -119,7 +90,7 @@ public class Smiles implements DialogInterface.OnClickListener {
 		this.activity = activity;
 
 		try {
-		    columns = Integer.parseInt(prefs.getString("SmilesColumns", 5+""));
+		    columns = Integer.parseInt(prefs.getString("SmilesColumns", 3+""));
 		} catch (NumberFormatException ignored) {	}
 		
 		try {
@@ -199,10 +170,10 @@ public class Smiles implements DialogInterface.OnClickListener {
         table.put("tease", tmp);
 
         tmp = new ArrayList<String>();
-        Collections.addAll(tmp, FUCK);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_fuck);
-        smiles.put("fuck", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("fuck", tmp);
+        Collections.addAll(tmp, SERIOUS);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_serious);
+        smiles.put("serious", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("serious", tmp);
 
         tmp = new ArrayList<String>();
         Collections.addAll(tmp, BOTAN);
@@ -211,10 +182,10 @@ public class Smiles implements DialogInterface.OnClickListener {
         table.put("botan", tmp);
         
         tmp = new ArrayList<String>();
-        Collections.addAll(tmp, MUSIC);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_music);
-        smiles.put("music", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("music", tmp);
+        Collections.addAll(tmp, DONTKNOW);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_dontknow);
+        smiles.put("dontknow", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("dontknow", tmp);
 
         tmp = new ArrayList<String>();
         Collections.addAll(tmp, KGB);
@@ -253,10 +224,10 @@ public class Smiles implements DialogInterface.OnClickListener {
         table.put("sorry", tmp);
 
         tmp = new ArrayList<String>();
-        Collections.addAll(tmp, COFFE);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_coffe);
-        smiles.put("coffe", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("coffe", tmp);
+        Collections.addAll(tmp, CRAFTY);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_crafty);
+        smiles.put("crafty", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("crafty", tmp);
 
         tmp = new ArrayList<String>();
         Collections.addAll(tmp, ANGRY);
@@ -293,180 +264,6 @@ public class Smiles implements DialogInterface.OnClickListener {
         smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_scare);
         smiles.put("scare", Bitmap.createScaledBitmap(smile, size, size, true));
         table.put("scare", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, READ);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_read);
-        smiles.put("read", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("read", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, FOOD);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_food);
-        smiles.put("food", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("food", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, TAUNT);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_taunt);
-        smiles.put("taunt", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("taunt", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, DANCE);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_dance);
-        smiles.put("dance", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("dance", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, GIRLDRINK);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_girldrink);
-        smiles.put("girldrink", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("girldrink", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, ASS);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_ass);
-        smiles.put("ass", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("ass", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, CENSORED);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_censored);
-        smiles.put("censored", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("censored", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, WRITE);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_write);
-        smiles.put("write", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("write", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, CONFUSED);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_confused);
-        smiles.put("confused", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("confused", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, BEER);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_beer);
-        smiles.put("beer", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("beer", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, POPCORN);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_popcorn);
-        smiles.put("popcorn", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("popcorn", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, COOL);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_cool);
-        smiles.put("cool", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("cool", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, NOSE);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_nose);
-        smiles.put("nose", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("nose", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, ALKASH);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_alkash);
-        smiles.put("alkash", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("alkash", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, SICK);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_sick);
-        smiles.put("sick", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("sick", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, WHISTLING);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_whistling);
-        smiles.put("whistling", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("whistling", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, HELP);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_help);
-        smiles.put("help", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("help", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, WALL);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_wall);
-        smiles.put("wall", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("wall", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, FOOL);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_fool);
-        smiles.put("fool", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("fool", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, SMOKE);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_smoke);
-        smiles.put("smoke", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("smoke", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, STRONG);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_strong);
-        smiles.put("strong", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("strong", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, RUSSIAN);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_russian);
-        smiles.put("russian", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("russian", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, HACKER);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_hacker);
-        smiles.put("hacker", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("hacker", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, CRAZY);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_crazy);
-        smiles.put("crazy", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("crazy", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, KING);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_king);
-        smiles.put("king", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("king", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, KUKU);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_kuku);
-        smiles.put("kuku", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("kuku", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, SLEEP);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_sleep);
-        smiles.put("sleep", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("sleep", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, THUMBSUP);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_thumbsup);
-        smiles.put("thumbsup", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("thumbsup", tmp);
-
-        tmp = new ArrayList<String>();
-        Collections.addAll(tmp, DONTKNOW);
-        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_dontknow);
-        smiles.put("dontknow", Bitmap.createScaledBitmap(smile, size, size, true));
-        table.put("dontknow", tmp);
 
         tmp = new ArrayList<String>();
         Collections.addAll(tmp, AMAZE);
