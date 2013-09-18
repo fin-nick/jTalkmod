@@ -18,12 +18,15 @@
 package net.ustyugov.jtalk.activity.vcard;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 
+import android.content.Intent;
+import android.os.Environment;
+import android.text.ClipboardManager;
+import android.widget.*;
+import com.actionbarsherlock.app.SherlockActivity;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.adapter.MainPageAdapter;
@@ -36,30 +39,19 @@ import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.packet.MUCUser;
-import org.jivesoftware.smackx.packet.VCard;
-import org.jivesoftware.smackx.packet.Version;
+import org.jivesoftware.smackx.packet.*;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -70,6 +62,8 @@ public class VCardActivity extends SherlockActivity {
 	private JTalkService service;
 	private String account;
 	private String jid;
+    private String lat;
+    private String lon;
 	
 	private TextView nick, first, last, middle, bday, url, about, ctry, locality, street, emailHome, phoneHome, org, unit, role, emailWork, phoneWork;
 	private ProgressBar aboutProgress, homeProgress, workProgress, avatarProgress, statusProgress;
@@ -109,7 +103,7 @@ public class VCardActivity extends SherlockActivity {
 		View workPage = inflater.inflate(R.layout.vcard_work, null);
 		View avatarPage = inflater.inflate(R.layout.vcard_avatar, null);
 		View statusPage = inflater.inflate(R.layout.list_activity, null);
-		
+
 		first = (TextView) aboutPage.findViewById(R.id.firstname);
 		middle = (TextView) aboutPage.findViewById(R.id.middlename);
 		last = (TextView) aboutPage.findViewById(R.id.lastname);
@@ -131,6 +125,31 @@ public class VCardActivity extends SherlockActivity {
 		phoneWork = (TextView) workPage.findViewById(R.id.workphone);
 		
 		av = (ImageView) avatarPage.findViewById(R.id.av);
+        av.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                String fname = Constants.PATH + "/" + jid.replaceAll("/", "%");
+                String saveto = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Pictures/Avatars/";
+
+                File folder = new File(saveto);
+                folder.mkdirs();
+
+                try {
+                    FileInputStream fis = new FileInputStream(fname);
+                    byte[] buffer = new byte[fis.available()];
+                    fis.read(buffer);
+                    fis.close();
+
+                    FileOutputStream fos = new FileOutputStream(saveto + "/" + jid.replaceAll("/", "%") + ".png");
+                    fos.write(buffer);
+                    fos.close();
+                    Toast.makeText(VCardActivity.this, "Copied to " + saveto, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(VCardActivity.this, "Failed to copy", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+        });
 		
 		statusProgress = (ProgressBar) statusPage.findViewById(R.id.progress);
 		aboutProgress = (ProgressBar) aboutPage.findViewById(R.id.progress);
@@ -152,14 +171,14 @@ public class VCardActivity extends SherlockActivity {
 		workPage.setTag(getString(R.string.Work));
 		avatarPage.setTag(getString(R.string.Photo));
 		statusPage.setTag(getString(R.string.Status));
-		
+
 		ArrayList<View> mPages = new ArrayList<View>();
 	    mPages.add(aboutPage);
 	    mPages.add(homePage);
 	    mPages.add(workPage);
 	    mPages.add(avatarPage);
 	    mPages.add(statusPage);
-	        
+
 	    MainPageAdapter adapter = new MainPageAdapter(mPages);
 	    ViewPager mPager = (ViewPager) findViewById(R.id.pager);
 	    mPager.setAdapter(adapter);
@@ -193,6 +212,10 @@ public class VCardActivity extends SherlockActivity {
 			case R.id.refresh:
 				onResume();
 				break;
+            case R.id.copy:
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboard.setText(jid);
+
 		}
 		return true;
 	}
@@ -405,7 +428,7 @@ public class VCardActivity extends SherlockActivity {
 	    			}
 					
 					if (bitmap != null) av.setImageBitmap(bitmap);
-					
+
 					if (re != null) {
 	    				LinearLayout linear = (LinearLayout) ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.vcard_item, null);
 						
