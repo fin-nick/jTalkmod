@@ -68,11 +68,15 @@ public class Smiles implements DialogInterface.OnClickListener {
     private static final String[] SORRY = {"*SORRY*", "*sorry*", ":sorry:"};
     private static final String[] CRAFTY = {":->", "*:->*", ":>"};
     private static final String[] ANGRY = {"*ANGRY*", ":-@", "*angry*"};
-    private static final String[] FLOWER = {"@};-", "*BOUQUET*", "@}->-"};
+    private static final String[] FLOWER = {"@};-", "*BOUQUET*", "@}->--"};
     private static final String[] TIRED = {"*TIRED*", "*tired*", "(Z)"};
     private static final String[] HEART = {"*GIVE_HEART*", "*give_heart*"};
     private static final String[] VAVA = {"*VAVA*", "*BLACK_EYE*", "*BLACKEYE*"};
     private static final String[] SCARE = {"*SCARE*", "*PANIC*", "*shock_scare*"};
+    private static final String[] CRAZY = {"*CRAZY*", "*crazy*"};
+    private static final String[] SICK = {":-!", ":!", "*SICK*"};
+    private static final String[] COOL = {"*COOL*", "*ROCK*", "*COOLBOY*"};
+    private static final String[] POPCORN = {"*POPCORN*"};
 	
 	private Hashtable<String, List<String>> table;
 	private Hashtable<String, Bitmap> smiles = new Hashtable<String, Bitmap>();
@@ -114,6 +118,30 @@ public class Smiles implements DialogInterface.OnClickListener {
         Bitmap smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_smile);
         smiles.put("smile", Bitmap.createScaledBitmap(smile, size, size, true));
         table.put("smile", tmp);
+
+        tmp = new ArrayList<String>();
+        Collections.addAll(tmp, POPCORN);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_popcorn);
+        smiles.put("popcorn", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("popcorn", tmp);
+
+        tmp = new ArrayList<String>();
+        Collections.addAll(tmp, COOL);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_cool);
+        smiles.put("cool", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("cool", tmp);
+
+        tmp = new ArrayList<String>();
+        Collections.addAll(tmp, CRAZY);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_crazy);
+        smiles.put("crazy", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("crazy", tmp);
+
+        tmp = new ArrayList<String>();
+        Collections.addAll(tmp, SICK);
+        smile = BitmapFactory.decodeResource(activity.getResources(), R.drawable.emotion_sick);
+        smiles.put("sick", Bitmap.createScaledBitmap(smile, size, size, true));
+        table.put("sick", tmp);
 
         tmp = new ArrayList<String>();
         Collections.addAll(tmp, FACEPALM);
