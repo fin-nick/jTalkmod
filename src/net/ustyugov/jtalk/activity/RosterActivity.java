@@ -17,7 +17,10 @@
 
 package net.ustyugov.jtalk.activity;
 
+import android.app.AlertDialog;
 import android.content.*;
+import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AdapterView;
@@ -57,12 +60,16 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.jtalk2.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
 public class RosterActivity extends SherlockActivity implements OnItemClickListener, OnItemLongClickListener {
     private static final int ACTIVITY_PREFERENCES = 10;
     final static int UPDATE_INTERVAL = 500;
     static long lastUpdateReceived;
     
-        private BroadcastReceiver updateReceiver;
+	private BroadcastReceiver updateReceiver;
     private BroadcastReceiver errorReceiver;
 
     private Menu menu = null;
@@ -86,12 +93,12 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
         
-                setContentView(R.layout.roster);
+		setContentView(R.layout.roster);
         
         LinearLayout roster = (LinearLayout) findViewById(R.id.roster_linear);
-        roster.setBackgroundColor(Colors.BACKGROUND);
-        
-        getSupportActionBar().setHomeButtonEnabled(true);
+    	roster.setBackgroundColor(Colors.BACKGROUND);
+    	
+    	getSupportActionBar().setHomeButtonEnabled(true);
         
         statusArray = getResources().getStringArray(R.array.statusArray);
         rosterAdapter = new RosterAdapter(this);
@@ -108,7 +115,7 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
         }
         gridView = (GridView) findViewById(R.id.users);
         gridView.setNumColumns(cols);
-                gridView.setCacheColorHint(0x00000000);
+		gridView.setCacheColorHint(0x00000000);
         gridView.setOnItemClickListener(this);
         gridView.setOnItemLongClickListener(this);
         gridView.setAdapter(rosterAdapter);
@@ -116,21 +123,27 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
         if (getIntent().getBooleanExtra("status", false)) {
             RosterDialogs.changeStatusDialog(this, null, null);
         }
-        Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
-                if (cursor == null || cursor.getCount() < 1) startActivity(new Intent(this, Accounts.class));
+
+        File table = new File(Constants.PATH_SMILES + "/default/table.xml");
+        if (!table.exists()) {
+            new CreateDefaultSmiles().execute();
+        } else {
+            Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
+            if (cursor == null || cursor.getCount() < 1) startActivity(new Intent(this, Accounts.class));
+        }
     }
     
     @Override
     public void onResume() {
         super.onResume();
         errorReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                        service = JTalkService.getInstance();
-                        String error = intent.getStringExtra("error");
-                        Toast.makeText(context, error, Toast.LENGTH_LONG).show();
-                }
-        };
+    		@Override
+    		public void onReceive(Context context, Intent intent) {
+    			service = JTalkService.getInstance();
+    			String error = intent.getStringExtra("error");
+    			Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+    		}
+    	};
 
         updateReceiver = new BroadcastReceiver() {
             @Override
@@ -145,14 +158,14 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
                 updateList();
             }
         };
-                
+  		
         service = JTalkService.getInstance();
         service.setCurrentJid("me");
-                
-                registerReceiver(errorReceiver, new IntentFilter(Constants.ERROR));
-        registerReceiver(updateReceiver, new IntentFilter(Constants.UPDATE));
-        registerReceiver(updateReceiver, new IntentFilter(Constants.NEW_MESSAGE));
-        
+  		
+  		registerReceiver(errorReceiver, new IntentFilter(Constants.ERROR));
+      	registerReceiver(updateReceiver, new IntentFilter(Constants.UPDATE));
+      	registerReceiver(updateReceiver, new IntentFilter(Constants.NEW_MESSAGE));
+      	
         if (service != null) service.resetTimer();
         updateList();
         updateMenu();
@@ -170,14 +183,14 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
 
     @Override
     public void onPause() {
-        super.onPause();
-        unregisterReceiver(errorReceiver);
-            unregisterReceiver(updateReceiver);
+    	super.onPause();
+    	unregisterReceiver(errorReceiver);
+	    unregisterReceiver(updateReceiver);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+    	super.onDestroy();
     }
     
     @Override
@@ -213,15 +226,15 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
     }
     
     private void updateMenu() {
-        if (menu != null) {
+    	if (menu != null) {
             if (gridView.getAdapter() instanceof SearchAdapter) return;
             menu.clear();
             getSupportMenuInflater().inflate(R.menu.roster, menu);
-                menu.findItem(R.id.add).setEnabled(service.isAuthenticated());
+    		menu.findItem(R.id.add).setEnabled(service.isAuthenticated());
             menu.findItem(R.id.muc).setEnabled(service.isAuthenticated());
             menu.findItem(R.id.disco).setEnabled(service.isAuthenticated());
             menu.findItem(R.id.offline).setTitle(prefs.getBoolean("hideOffline", false) ? R.string.ShowOfflineContacts : R.string.HideOfflineContacts);
-           
+
             MenuItem sound = menu.findItem(R.id.notify);
             sound.setShowAsActionFlags(prefs.getBoolean("showSound", false) ? MenuItem.SHOW_AS_ACTION_ALWAYS : MenuItem.SHOW_AS_ACTION_NEVER);
             if (prefs.getBoolean("soundDisabled", false)) {
@@ -275,79 +288,79 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
                 item.setOnActionExpandListener(listener);
             } else menu.removeItem(R.id.search);
             super.onCreateOptionsMenu(menu);
-        }
+    	}
     }
   
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-                case R.id.offline:
-                        if (prefs.getBoolean("hideOffline", false)) service.setPreference("hideOffline", false);
-                        else service.setPreference("hideOffline", true);
-                        updateMenu();
-                        updateList();
-                        break;
-                case R.id.status:
-                        RosterDialogs.changeStatusDialog(this, null, null);
-                        break;
-                case android.R.id.home:
-                        RosterDialogs.changeStatusDialog(this, null, null);
-                        break;
-                case R.id.add:
-                        RosterDialogs.addDialog(this, null);
-                        break;
+    	switch (item.getItemId()) {
+    		case R.id.offline:
+    			if (prefs.getBoolean("hideOffline", false)) service.setPreference("hideOffline", false);
+    			else service.setPreference("hideOffline", true);
+    			updateMenu();
+    			updateList();
+    			break;
+    		case R.id.status:
+    			RosterDialogs.changeStatusDialog(this, null, null);
+    			break;
+    		case android.R.id.home:
+    			RosterDialogs.changeStatusDialog(this, null, null);
+    			break;
+  	    	case R.id.add:
+  	    		RosterDialogs.addDialog(this, null);
+  	    		break;
             case R.id.search:
                 menu.removeItem(R.id.chats);
                 item.expandActionView();
                 break;
-                case R.id.bookmarks:
-                        Intent bIntent = new Intent(this, Bookmarks.class);
-                        startActivity(bIntent);
-                        break;
+  	    	case R.id.bookmarks:
+  	    		Intent bIntent = new Intent(this, Bookmarks.class);
+  	    		startActivity(bIntent);
+  	    		break;
             case R.id.muc:
                 Intent mIntent = new Intent(this, Muc.class);
                 startActivity(mIntent);
                 break;
-                case R.id.chats:
-                        ChangeChatDialog.show(this);
-                        break;
-                case R.id.accounts:
-                        Intent aIntent = new Intent(this, Accounts.class);
-                        startActivity(aIntent);
-                        break;
-                case R.id.prefs:
-                        startActivityForResult(new Intent(this, Preferences.class), ACTIVITY_PREFERENCES);
-                        break;
-                case R.id.disco:
-                        startActivity(new Intent(this, ServiceDiscovery.class));
-                        break;
+  	    	case R.id.chats:
+  	    		ChangeChatDialog.show(this);
+  	    		break;
+  	    	case R.id.accounts:
+  	    		Intent aIntent = new Intent(this, Accounts.class);
+  	    		startActivity(aIntent);
+  	    		break;
+  	    	case R.id.prefs:
+  	    		startActivityForResult(new Intent(this, Preferences.class), ACTIVITY_PREFERENCES);
+  	    		break;
+  	    	case R.id.disco:
+  	    		startActivity(new Intent(this, ServiceDiscovery.class));
+  	    		break;
             case R.id.notify:
                 if (prefs.getBoolean("soundDisabled", false)) service.setPreference("soundDisabled", false);
                 else service.setPreference("soundDisabled", true);
                 updateMenu();
                 break;
-                case R.id.exit:
-                        if (prefs.getBoolean("DeleteHistory", false)) {
-                                getContentResolver().delete(JTalkProvider.CONTENT_URI, null, null);
-                        }
-                        Notify.cancelAll(this);
+  	    	case R.id.exit:
+  	    		if (prefs.getBoolean("DeleteHistory", false)) {
+  	    			getContentResolver().delete(JTalkProvider.CONTENT_URI, null, null);
+  	    		}
+  	    		Notify.cancelAll(this);
                 stopService(new Intent(this, JTalkService.class));
                 finish();
                 System.exit(0);
-                        break;
-                default:
-                        return false;
-        }
-        return true;
+  	    		break;
+  	    	default:
+  	    		return false;
+    	}
+    	return true;
     }
   
     private void updateList() {
-        new Thread() {
-                public void run() {
-                        RosterActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(RosterActivity.this);
+    	new Thread() {
+    		public void run() {
+    			RosterActivity.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(RosterActivity.this);
                         if (gridView.getAdapter() != null && gridView.getAdapter() instanceof  SearchAdapter) {
                             searchAdapter.update(searchString);
                             searchAdapter.notifyDataSetChanged();
@@ -362,71 +375,113 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
                                 simpleAdapter.notifyDataSetChanged();
                             }
                         }
-                                        }
+					}
                        });
-                }
-        }.start();
+    		}
+    	}.start();
     }
     
     private void updateStatus() {
-        if (service.isAuthenticated()) {
-                        String status = statusArray[prefs.getInt("currentSelection", 0)];
-                        String substatus = prefs.getString("currentStatus", "");
-                        getSupportActionBar().setTitle(status);
-                        getSupportActionBar().setSubtitle(substatus);
-                } else {
-                        getSupportActionBar().setTitle(getString(R.string.NotConnected));
-                        getSupportActionBar().setSubtitle(service.getGlobalState());
-                }
+    	if (service.isAuthenticated()) {
+   			String status = statusArray[prefs.getInt("currentSelection", 0)];
+   			String substatus = prefs.getString("currentStatus", "");
+   			getSupportActionBar().setTitle(status);
+   			getSupportActionBar().setSubtitle(substatus);
+   		} else {
+   			getSupportActionBar().setTitle(getString(R.string.NotConnected));
+   			getSupportActionBar().setSubtitle(service.getGlobalState());
+   		}
     }
     
-        @Override
-        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                RosterItem item = (RosterItem) parent.getItemAtPosition(position);
-                String name = item.getName();
-                String account = item.getAccount();
-                
-                if (item.isGroup() || item.isAccount()) {
-                        if (item.isCollapsed()) {
-                                while (service.getCollapsedGroups().contains(name)) service.getCollapsedGroups().remove(name);
-                                item.setCollapsed(false);
-                        } else {
-                                service.getCollapsedGroups().add(name);
-                                item.setCollapsed(true);
-                        }
-                        updateList();
-                } else if (item.isEntry() || item.isSelf()) {
-                        RosterEntry re = item.getEntry();
-                        String jid = re.getUser();
-                        Intent i = new Intent(this, Chat.class);
-                        i.putExtra("account", account);
-                i.putExtra("jid", jid);
-                startActivity(i);
-                } else if (item.isMuc()) {
-                        Intent i = new Intent(this, Chat.class);
-                        i.putExtra("account", account);
-                i.putExtra("jid", item.getName());
-                startActivity(i);
-                }
-        }
-        
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                RosterItem item = (RosterItem) parent.getItemAtPosition(position);
-                if (item.isGroup()) {
-                        String name = item.getName();
-                        if (!name.equals(getString(R.string.Nogroup)) && !name.equals(getString(R.string.SelfGroup)) && !name.equals(getString(R.string.MUC)) && !name.equals(getString(R.string.Privates)) && !name.equals(getString(R.string.ActiveChats))) RosterDialogs.renameGroupDialog(this, item.getAccount(), item.getName());
-                } else if (item.isAccount()) {
-                        RosterDialogs.AccountMenuDialog(this, item);
-                } else if (item.isEntry()) {
+	@Override
+	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		RosterItem item = (RosterItem) parent.getItemAtPosition(position);
+		String name = item.getName();
+		String account = item.getAccount();
+		
+		if (item.isGroup() || item.isAccount()) {
+			if (item.isCollapsed()) {
+				while (service.getCollapsedGroups().contains(name)) service.getCollapsedGroups().remove(name);
+				item.setCollapsed(false);
+			} else {
+				service.getCollapsedGroups().add(name);
+				item.setCollapsed(true);
+			}
+			updateList();
+		} else if (item.isEntry() || item.isSelf()) {
+			RosterEntry re = item.getEntry();
+			String jid = re.getUser();
+			Intent i = new Intent(this, Chat.class);
+			i.putExtra("account", account);
+	        i.putExtra("jid", jid);
+	        startActivity(i);
+		} else if (item.isMuc()) {
+			Intent i = new Intent(this, Chat.class);
+			i.putExtra("account", account);
+	        i.putExtra("jid", item.getName());
+	        startActivity(i);
+		}
+	}
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		RosterItem item = (RosterItem) parent.getItemAtPosition(position);
+		if (item.isGroup()) {
+			String name = item.getName();
+			if (!name.equals(getString(R.string.Nogroup)) && !name.equals(getString(R.string.SelfGroup)) && !name.equals(getString(R.string.MUC)) && !name.equals(getString(R.string.Privates)) && !name.equals(getString(R.string.ActiveChats))) RosterDialogs.renameGroupDialog(this, item.getAccount(), item.getName());
+		} else if (item.isAccount()) {
+			RosterDialogs.AccountMenuDialog(this, item);
+		} else if (item.isEntry()) {
             String j = item.getEntry().getUser();
-                        if (!service.getPrivateMessages(item.getAccount()).contains(j)) RosterDialogs.ContactMenuDialog(this, item);
+			if (!service.getPrivateMessages(item.getAccount()).contains(j)) RosterDialogs.ContactMenuDialog(this, item);
             else RosterDialogs.PrivateMenuDialog(this, item);
-                } else if (item.isSelf()) {
-                        RosterDialogs.SelfContactMenuDialog(this, item);
-                } else if (item.isMuc()) {
-                        MucDialogs.roomMenu(this, item.getAccount(), item.getName());
-                }
-                return true;
+		} else if (item.isSelf()) {
+			RosterDialogs.SelfContactMenuDialog(this, item);
+		} else if (item.isMuc()) {
+			MucDialogs.roomMenu(this, item.getAccount(), item.getName());
+		}
+		return true;
+	}
+
+    private class CreateDefaultSmiles extends AsyncTask<Integer, Integer, Integer> {
+        AlertDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(RosterActivity.this);
+            builder.setMessage("Please wait...");
+            builder.setCancelable(false);
+            dialog = builder.create();
+            dialog.show();
         }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            dialog.cancel();
+            Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
+            if (cursor == null || cursor.getCount() < 1) startActivity(new Intent(RosterActivity.this, Accounts.class));
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            File folder = new File(Constants.PATH_SMILES + "/default");
+            folder.mkdirs();
+
+            try {
+                AssetManager assetManager = getAssets();
+                for (String file : assetManager.list("emotion")) {
+                    InputStream in = assetManager.open("emotion/" + file);
+                    byte[] buffer = new byte[in.available()];
+                    in.read(buffer);
+                    in.close();
+
+                    FileOutputStream out = new FileOutputStream(Constants.PATH_SMILES + "/default/" + file);
+                    out.write(buffer);
+                    out.close();
+                }
+            } catch (Exception ignored) { }
+
+            return 0;
+        }
+    }
 }

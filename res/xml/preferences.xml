@@ -29,11 +29,11 @@
         <CheckBoxPreference
                 android:key="ShowCaps"
                 android:title="@string/ShowClientsIcons"
-                android:defaultValue="false" />
+                android:defaultValue="true" />
         <CheckBoxPreference
                 android:key="LoadAvatar"
                 android:title="@string/LoadAvatars"
-                android:defaultValue="false" />
+                android:defaultValue="true" />
         <EditTextPreference
                 android:key="RosterSize"
                 android:numeric="integer"
@@ -285,7 +285,7 @@
         <CheckBoxPreference
                 android:title="Auto load avatars"
                 android:key="LoadAllAvatars"
-                android:defaultValue="false"/>
+                android:defaultValue="true"/>
         <CheckBoxPreference
                 android:title="Ping to server"
                 android:summary="Needed reconnect"
