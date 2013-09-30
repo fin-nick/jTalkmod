@@ -93,7 +93,7 @@ public class AddAccountActivity extends AccountAuthenticatorActivity implements 
                 username = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID));
                 password = cursor.getString(cursor.getColumnIndex(AccountDbHelper.PASS));
                 resource = cursor.getString(cursor.getColumnIndex(AccountDbHelper.RESOURCE));
-                if (resource == null || resource.length() < 1) resource = "Android";
+                if (resource == null || resource.length() < 1) resource = "jTalkmod";
                 service = cursor.getString(cursor.getColumnIndex(AccountDbHelper.SERVER));
 
                 try {
@@ -126,7 +126,7 @@ public class AddAccountActivity extends AccountAuthenticatorActivity implements 
             String pass = passEdit.getText().toString();
             if (pass == null) pass = "";
             String res = resEdit.getText().toString();
-            if (res == null || res.length() < 1) res = "Android";
+            if (res == null || res.length() < 1) res = "jTalkmod";
             String ser = serEdit.getText().toString();
             if (ser == null) ser = "";
             String port = portEdit.getText().toString();
