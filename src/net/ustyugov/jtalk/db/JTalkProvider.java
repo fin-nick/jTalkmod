@@ -31,10 +31,10 @@ import net.ustyugov.jtalk.Constants;
 import java.io.*;
 
 public class JTalkProvider  extends ContentProvider {
-	public static final Uri ACCOUNT_URI = Uri.parse("content://com.jtalk2/account");
-	public static final Uri CONTENT_URI = Uri.parse("content://com.jtalk2/message");
-	public static final Uri TEMPLATES_URI = Uri.parse("content://com.jtalk2/template");
-	public static final Uri WIDGET_URI = Uri.parse("content://com.jtalk2/widget");
+	public static final Uri ACCOUNT_URI = Uri.parse("content://com.jtalkmod/account");
+	public static final Uri CONTENT_URI = Uri.parse("content://com.jtalkmod/message");
+	public static final Uri TEMPLATES_URI = Uri.parse("content://com.jtalkmod/template");
+	public static final Uri WIDGET_URI = Uri.parse("content://com.jtalkmod/widget");
 	
 	private SQLiteDatabase msg_db;
 	private SQLiteDatabase wdg_db;
@@ -52,7 +52,7 @@ public class JTalkProvider  extends ContentProvider {
                 file.mkdirs();
                 file = new File(path);
                 if (!file.exists()) {
-                    InputStream input = new FileInputStream("/data/data/com.jtalk2/databases/msg.db");
+                    InputStream input = new FileInputStream("/data/data/com.jtalkmod/databases/msg.db");
                     OutputStream output = new FileOutputStream(path);
 
                     byte[] buffer = new byte[1024];

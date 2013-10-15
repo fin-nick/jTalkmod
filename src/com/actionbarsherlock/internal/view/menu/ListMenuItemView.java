@@ -29,7 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import com.jtalk2.R;;
+import com.jtalkmod.R;;
 
 /**
  * The item view for each item in the ListView-based MenuViews.

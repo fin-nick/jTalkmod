@@ -35,7 +35,7 @@ import android.widget.ProgressBar;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class CommandsActivity extends SherlockActivity implements OnItemClickListener {
 	private JTalkService service;

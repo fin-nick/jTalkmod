@@ -28,7 +28,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 /**
  * This widget implements the dynamic action bar tab behavior that can change

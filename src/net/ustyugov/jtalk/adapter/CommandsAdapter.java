@@ -32,7 +32,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import java.util.Iterator;
 

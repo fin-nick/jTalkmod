@@ -47,7 +47,7 @@ import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class ChatsSpinnerAdapter extends ArrayAdapter<RosterItem> implements SpinnerAdapter {
 	private JTalkService service;

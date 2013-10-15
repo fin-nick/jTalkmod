@@ -17,7 +17,7 @@
 
 package net.ustyugov.jtalk.db;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.ContentValues;
 import android.content.Context;

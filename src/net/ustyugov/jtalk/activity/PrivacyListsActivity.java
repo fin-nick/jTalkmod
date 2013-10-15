@@ -41,7 +41,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class PrivacyListsActivity extends SherlockActivity implements OnItemClickListener {
 	private static final int CONTEXT_ACTIVATE = 1;

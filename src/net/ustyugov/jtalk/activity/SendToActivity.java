@@ -26,7 +26,7 @@ import android.view.View;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.RosterItem;
 import net.ustyugov.jtalk.activity.filetransfer.SendFileActivity;

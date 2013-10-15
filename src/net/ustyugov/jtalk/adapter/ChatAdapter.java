@@ -28,7 +28,7 @@ import net.ustyugov.jtalk.dialog.JuickMessageMenuDialog;
 import net.ustyugov.jtalk.listener.TextLinkClickListener;
 import net.ustyugov.jtalk.view.MyTextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.Intent;

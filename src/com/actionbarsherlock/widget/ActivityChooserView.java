@@ -41,7 +41,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 /**
  * This class is a view for choosing an activity for handling a given {@link Intent}.

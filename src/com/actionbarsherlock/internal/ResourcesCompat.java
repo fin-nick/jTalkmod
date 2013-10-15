@@ -3,7 +3,7 @@ package com.actionbarsherlock.internal;
 import android.content.Context;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import com.jtalk2.R;;
+import com.jtalkmod.R;;
 
 public final class ResourcesCompat {
     //No instances

@@ -17,7 +17,7 @@
 
 package net.ustyugov.jtalk.adapter;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;

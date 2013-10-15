@@ -30,7 +30,7 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.jivesoftware.smackx.packet.MUCUser;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class MucParticipantStatusListener implements ParticipantStatusListener {
         private String g;

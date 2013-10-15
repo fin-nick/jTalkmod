@@ -27,7 +27,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class IconPicker {
 	private Bitmap online;

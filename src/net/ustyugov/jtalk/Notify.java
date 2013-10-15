@@ -30,7 +30,7 @@ import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;

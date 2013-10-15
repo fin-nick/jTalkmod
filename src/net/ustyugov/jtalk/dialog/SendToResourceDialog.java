@@ -34,7 +34,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class SendToResourceDialog implements OnClickListener {
 	private Activity a;

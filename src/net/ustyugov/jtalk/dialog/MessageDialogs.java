@@ -29,7 +29,7 @@ import net.ustyugov.jtalk.db.JTalkProvider;
 import net.ustyugov.jtalk.db.MessageDbHelper;
 import net.ustyugov.jtalk.service.JTalkService;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

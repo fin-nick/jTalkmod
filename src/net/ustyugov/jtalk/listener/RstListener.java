@@ -34,7 +34,7 @@ import org.jivesoftware.smack.util.StringUtils;
 
 import android.content.Intent;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class RstListener implements RosterListener {
         private JTalkService service;

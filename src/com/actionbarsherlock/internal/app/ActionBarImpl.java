@@ -53,7 +53,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import static com.actionbarsherlock.internal.ResourcesCompat.getResources_getBoolean;
 

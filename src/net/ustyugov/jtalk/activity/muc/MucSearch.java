@@ -46,7 +46,7 @@ import android.widget.ProgressBar;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class MucSearch extends SherlockActivity implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
 	private JTalkService service;

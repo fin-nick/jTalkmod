@@ -27,7 +27,7 @@ import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.IconPicker;
 import net.ustyugov.jtalk.service.JTalkService;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;

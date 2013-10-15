@@ -24,7 +24,7 @@ import java.util.List;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -69,16 +69,17 @@ public class SmilesDialogAdapter extends ArrayAdapter<String>{
         }
 
         Bitmap smile = BitmapFactory.decodeFile(hash.get(key));
+        if (smile != null) {
+            int h = smile.getHeight();
+            int w = smile.getWidth();
+            double k = (double)h/(double)size;
+            int ws = (int) (w/k);
 
-        int h = smile.getHeight();
-        int w = smile.getWidth();
-        double k = (double)h/(double)size;
-        int ws = (int) (w/k);
+            Bitmap bitmap = Bitmap.createScaledBitmap(smile, ws, size, true);
 
-        Bitmap bitmap = Bitmap.createScaledBitmap(smile, ws, size, true);
-
-		ImageView icon = (ImageView) v.findViewById(R.id.smile);
-		icon.setImageBitmap(bitmap);
+            ImageView icon = (ImageView) v.findViewById(R.id.smile);
+            icon.setImageBitmap(bitmap);
+        }
         return v;
     }
 

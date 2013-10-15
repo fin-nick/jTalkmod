@@ -24,7 +24,7 @@ import net.ustyugov.jtalk.db.JTalkProvider;
 import net.ustyugov.jtalk.db.TemplatesDbHelper;
 import net.ustyugov.jtalk.service.JTalkService;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;

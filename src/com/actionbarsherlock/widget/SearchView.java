@@ -66,7 +66,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import com.actionbarsherlock.view.CollapsibleActionView;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;

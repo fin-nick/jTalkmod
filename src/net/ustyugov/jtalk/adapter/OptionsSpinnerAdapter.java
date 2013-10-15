@@ -19,7 +19,7 @@ package net.ustyugov.jtalk.adapter;
 
 import java.util.Iterator;
 import org.jivesoftware.smackx.FormField;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

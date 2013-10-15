@@ -48,7 +48,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class SearchAdapter extends ArrayAdapter<RosterItem> {
 	private JTalkService service;

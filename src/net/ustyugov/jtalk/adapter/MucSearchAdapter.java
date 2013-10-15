@@ -25,7 +25,7 @@ import net.ustyugov.jtalk.service.JTalkService;
 
 import org.jivesoftware.smackx.muc.HostedRoom;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -27,7 +27,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Notify;
 import net.ustyugov.jtalk.db.AccountDbHelper;

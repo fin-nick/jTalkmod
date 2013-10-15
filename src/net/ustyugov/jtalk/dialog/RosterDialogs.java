@@ -62,7 +62,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class RosterDialogs {
         

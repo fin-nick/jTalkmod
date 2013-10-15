@@ -28,11 +28,16 @@ import android.util.Log;
 import java.util.List;
 
 public class MessageLog {
-        
-        public static void writeMessage(String account, String jid, MessageItem message) {
+	
+	public static void writeMessage(String account, String jid, MessageItem message) {
         JTalkService service = JTalkService.getInstance();
         List<MessageItem> list = service.getMessageList(account, jid);
-        list.add(message);
+        if (message.getType() == MessageItem.Type.status) {
+            if (service.getActiveChats(account).contains(jid)) list.add(message);
+        } else {
+            if (!service.getActiveChats(account).contains(jid)) service.addActiveChat(account, jid);
+            list.add(message);
+        }
         service.setMessageList(account, jid, list);
 
         try {
@@ -49,16 +54,13 @@ public class MessageLog {
             values.put(MessageDbHelper.BOB, "NULL");
             service.getContentResolver().insert(JTalkProvider.CONTENT_URI, values);
 
-            if (message.getType() == MessageItem.Type.message && !service.getActiveChats(account).contains(jid))
-                service.addActiveChat(account, jid);
-
             service.sendBroadcast(new Intent(Constants.NEW_MESSAGE).putExtra("jid", jid));
         } catch (Exception sqle) {
             Log.i("SQL", sqle.getLocalizedMessage());
         }
     }
-        
-        public static void writeMucMessage(String account, final String group, final String nick, final MessageItem message) {
+	
+	public static void writeMucMessage(String account, final String group, final String nick, final MessageItem message) {
         JTalkService service = JTalkService.getInstance();
         List<MessageItem> list = service.getMessageList(account, group);
         list.add(message);
@@ -82,37 +84,37 @@ public class MessageLog {
         } catch (Exception sqle) {
             Log.i("SQL", sqle.getLocalizedMessage());
         }
-        }
-        
-        public static void editMessage(final String account, final String jid, final String id, final String text) {
-                final JTalkService service = JTalkService.getInstance();
-                new Thread() {
-                        @Override
-                        public void run() {
-                                try {
-                                        Cursor cursor = service.getContentResolver().query(JTalkProvider.CONTENT_URI, null, "jid = '" + jid + "' AND id = '" + id + "'", null, MessageDbHelper._ID);
-                                        if (cursor != null && cursor.getCount() > 0 && text != null && text.length() > 0) {
-                                                cursor.moveToLast();
-                                                String _id = cursor.getString(cursor.getColumnIndex(MessageDbHelper._ID));
-                                                String nick = cursor.getString(cursor.getColumnIndex(MessageDbHelper.NICK));
-                                                String type = cursor.getString(cursor.getColumnIndex(MessageDbHelper.TYPE));
-                                                String stamp = cursor.getString(cursor.getColumnIndex(MessageDbHelper.STAMP));
-                                                String collapsed = cursor.getString(cursor.getColumnIndex(MessageDbHelper.COLLAPSED));
-                                                String received = cursor.getString(cursor.getColumnIndex(MessageDbHelper.RECEIVED));
-                                                
-                                                ContentValues values = new ContentValues();
-                                    values.put(MessageDbHelper.TYPE, type);
-                                    values.put(MessageDbHelper.JID, jid);
-                                    values.put(MessageDbHelper.ID, id);
-                                    values.put(MessageDbHelper.STAMP, stamp);
-                                    values.put(MessageDbHelper.NICK, nick);
-                                    values.put(MessageDbHelper.BODY, text);
-                                    values.put(MessageDbHelper.COLLAPSED, collapsed);
-                                    values.put(MessageDbHelper.RECEIVED, received);
-                                    values.put(MessageDbHelper.FORM, "NULL");
-                                    values.put(MessageDbHelper.BOB, "NULL");
-                                    
-                                    service.getContentResolver().update(JTalkProvider.CONTENT_URI, values, "_ID = '" + _id + "'", null);
+	}
+	
+	public static void editMessage(final String account, final String jid, final String id, final String text) {
+		final JTalkService service = JTalkService.getInstance();
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Cursor cursor = service.getContentResolver().query(JTalkProvider.CONTENT_URI, null, "jid = '" + jid + "' AND id = '" + id + "'", null, MessageDbHelper._ID);
+					if (cursor != null && cursor.getCount() > 0 && text != null && text.length() > 0) {
+						cursor.moveToLast();
+						String _id = cursor.getString(cursor.getColumnIndex(MessageDbHelper._ID));
+						String nick = cursor.getString(cursor.getColumnIndex(MessageDbHelper.NICK));
+						String type = cursor.getString(cursor.getColumnIndex(MessageDbHelper.TYPE));
+						String stamp = cursor.getString(cursor.getColumnIndex(MessageDbHelper.STAMP));
+						String collapsed = cursor.getString(cursor.getColumnIndex(MessageDbHelper.COLLAPSED));
+						String received = cursor.getString(cursor.getColumnIndex(MessageDbHelper.RECEIVED));
+						
+						ContentValues values = new ContentValues();
+		 	            values.put(MessageDbHelper.TYPE, type);
+		 	            values.put(MessageDbHelper.JID, jid);
+		 	            values.put(MessageDbHelper.ID, id);
+		 	            values.put(MessageDbHelper.STAMP, stamp);
+		 	            values.put(MessageDbHelper.NICK, nick);
+		 	            values.put(MessageDbHelper.BODY, text);
+		 	            values.put(MessageDbHelper.COLLAPSED, collapsed);
+		 	            values.put(MessageDbHelper.RECEIVED, received);
+		 	            values.put(MessageDbHelper.FORM, "NULL");
+		 	            values.put(MessageDbHelper.BOB, "NULL");
+		 	            
+		 	            service.getContentResolver().update(JTalkProvider.CONTENT_URI, values, "_ID = '" + _id + "'", null);
 
                         List<MessageItem> list = service.getMessageList(account, jid);
                         for (MessageItem item : list) {
@@ -122,11 +124,11 @@ public class MessageLog {
                             }
                         }
                         service.sendBroadcast(new Intent(Constants.NEW_MESSAGE).putExtra("jid", jid));
-                                        }
-                    } catch (Exception sqle) {
-                        Log.i("SQL", sqle.getLocalizedMessage());
-                    }
-                        }
-                }.start();
-        }
+					}
+	            } catch (Exception sqle) {
+	            	Log.i("SQL", sqle.getLocalizedMessage());
+	            }
+			}
+		}.start();
+	}
 }

@@ -54,7 +54,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import com.viewpagerindicator.TitlePageIndicator;
 
 public class MucUsers extends SherlockActivity {

@@ -40,7 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class AccountsAdapter extends ArrayAdapter<Account> {
         private JTalkService service;

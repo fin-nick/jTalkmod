@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.internal.view.View_HasStateListenerSupport;
 import com.actionbarsherlock.internal.view.View_OnAttachStateChangeListener;
 import com.actionbarsherlock.internal.widget.CapitalizingButton;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import static com.actionbarsherlock.internal.ResourcesCompat.getResources_getBoolean;
 

@@ -370,4 +370,10 @@
         <value>*KISSING*</value>
         <value>*kissing*</value>
     </smile>
+
+    <smile file="67.png">
+        <value>*SEX*</value>
+        <value>*sex*</value>
+        <value>:sex:</value>
+    </smile>
 </package>

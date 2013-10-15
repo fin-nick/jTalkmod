@@ -43,7 +43,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import org.jivesoftware.smackx.packet.MUCUser;
 
 public class MucRosterAdapter extends ArrayAdapter<RosterItem> {

@@ -46,7 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.internal.ActionBarSherlockCompat;

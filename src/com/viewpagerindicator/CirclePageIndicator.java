@@ -32,7 +32,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 /**
  * Draws circles (one for each view). The current view position is filled and

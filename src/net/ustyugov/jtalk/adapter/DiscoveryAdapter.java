@@ -22,7 +22,7 @@ import java.util.List;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.DiscoItem;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;

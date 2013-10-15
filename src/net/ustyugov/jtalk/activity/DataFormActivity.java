@@ -62,7 +62,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class DataFormActivity extends SherlockActivity implements OnClickListener {
         private DataForm form;

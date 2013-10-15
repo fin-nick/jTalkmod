@@ -26,7 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Notify;
 import net.ustyugov.jtalk.activity.RosterActivity;

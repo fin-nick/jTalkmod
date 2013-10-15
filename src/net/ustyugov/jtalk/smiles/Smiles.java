@@ -28,8 +28,6 @@ import android.widget.TextView;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.adapter.SmilesDialogAdapter;
 
-import net.ustyugov.jtalk.smiles.MyImageSpan;
-import net.ustyugov.jtalk.smiles.SmileDrawable;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -48,7 +46,7 @@ public class Smiles implements DialogInterface.OnClickListener {
 	private String path;
 	private Activity activity;
 	private SmilesDialogAdapter adapter;
-	private int columns = 3;
+	private int columns = 5;
 
 	public Smiles(Activity activity) {
 		prefs = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -58,7 +56,7 @@ public class Smiles implements DialogInterface.OnClickListener {
 		this.activity = activity;
 
 		try {
-		    columns = Integer.parseInt(prefs.getString("SmilesColumns", 3+""));
+		    columns = Integer.parseInt(prefs.getString("SmilesColumns", 5+""));
 		} catch (NumberFormatException ignored) {	}
 
         File file = new File(path + "/icondef.xml");

@@ -28,7 +28,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class AutoAwayStatus extends TimerTask {
 	@Override

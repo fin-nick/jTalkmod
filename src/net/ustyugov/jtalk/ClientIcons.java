@@ -17,7 +17,7 @@
 
 package net.ustyugov.jtalk;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.app.Activity;
 import android.view.View;
@@ -34,6 +34,8 @@ public class ClientIcons {
 							imageView.setVisibility(View.VISIBLE);
 							if (node.toLowerCase().contains("adium")) {
 								imageView.setImageResource(R.drawable.client_adium);
+                            } else if (node.toLowerCase().contains("aqq.eu")) {
+								imageView.setImageResource(R.drawable.client_aqq);
                             } else if (node.toLowerCase().contains("www.beem-project.com")) {
 								imageView.setImageResource(R.drawable.client_beem);
                             } else if (node.toLowerCase().contains("bitlbee.org/xmpp/caps")) {
@@ -52,7 +54,7 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_bombusplus);
 							} else if (node.toLowerCase().contains("bombus-im.org/java")) {
 								imageView.setImageResource(R.drawable.client_bombus);
-							} else if (node.toLowerCase().contains("exodus")) {
+							} else if (node.toLowerCase().contains("exodus.jabberstudio.org/caps")) {
 								imageView.setImageResource(R.drawable.client_exodus);
                             } else if (node.toLowerCase().contains("urn:xmpp:rtt:0")) {
 								imageView.setImageResource(R.drawable.client_fasttext);

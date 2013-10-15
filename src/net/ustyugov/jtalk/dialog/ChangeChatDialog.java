@@ -27,7 +27,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class ChangeChatDialog {
 	public static void show(final Activity activity) {

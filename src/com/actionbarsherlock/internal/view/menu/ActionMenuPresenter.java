@@ -38,7 +38,7 @@ import com.actionbarsherlock.internal.view.View_OnAttachStateChangeListener;
 import com.actionbarsherlock.internal.view.menu.ActionMenuView.ActionMenuChildView;
 import com.actionbarsherlock.view.ActionProvider;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;;
+import com.jtalkmod.R;;
 
 /**
  * MenuPresenter for building action menus as seen in the action bar and action modes.

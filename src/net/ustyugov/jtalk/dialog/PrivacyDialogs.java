@@ -37,7 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class PrivacyDialogs {
 	

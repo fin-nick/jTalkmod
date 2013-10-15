@@ -33,7 +33,7 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.RosterPacket;
 import org.jivesoftware.smack.util.StringUtils;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;

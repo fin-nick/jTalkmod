@@ -25,7 +25,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class MucAdminMenu implements OnClickListener {
 	private Activity activity;

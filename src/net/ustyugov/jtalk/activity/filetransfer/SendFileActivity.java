@@ -44,7 +44,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.actionbarsherlock.app.SherlockActivity;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class SendFileActivity extends SherlockActivity implements OnClickListener {
 	private static final int RESULT = 1;

@@ -216,7 +216,7 @@
                     android:key="SmilesColumns"
                     android:title="@string/Columns"
                     android:summary="The number of columns in the dialog"
-                    android:defaultValue="3"
+                    android:defaultValue="5"
                     android:numeric="integer"/>
         </PreferenceScreen>
         <ListPreference

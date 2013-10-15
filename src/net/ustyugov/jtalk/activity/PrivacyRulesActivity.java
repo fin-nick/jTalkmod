@@ -47,7 +47,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class PrivacyRulesActivity extends SherlockActivity {
 	private static final int MENU_SAVE = 1;

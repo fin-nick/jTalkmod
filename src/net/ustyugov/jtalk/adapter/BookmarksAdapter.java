@@ -30,7 +30,7 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.bookmark.BookmarkManager;
 import org.jivesoftware.smackx.bookmark.BookmarkedConference;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.Intent;

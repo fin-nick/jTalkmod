@@ -1,6 +1,6 @@
 package com.actionbarsherlock.internal.widget;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 import android.content.Context;
 import android.content.res.Resources;

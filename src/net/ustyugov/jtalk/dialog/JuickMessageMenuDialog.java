@@ -25,7 +25,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class JuickMessageMenuDialog implements OnClickListener {
 //	private static final String JUICK = "juick@juick.com";

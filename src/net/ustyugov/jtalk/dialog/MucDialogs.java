@@ -52,7 +52,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class MucDialogs {
 

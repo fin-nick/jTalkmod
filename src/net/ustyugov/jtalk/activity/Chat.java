@@ -64,7 +64,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
-import com.jtalk2.R;
+import com.jtalkmod.R;
 
 public class Chat extends SherlockActivity implements View.OnClickListener, OnScrollListener, OnItemLongClickListener {
     public static final int REQUEST_TEMPLATES = 1;
@@ -118,7 +118,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         try {
             maxCount = Integer.parseInt(prefs.getString("MaxLogMessages", "0"));
             maxMucCount = Integer.parseInt(prefs.getString("MaxMucMessages", "0"));
-        } catch (NumberFormatException ignored) {       }
+        } catch (NumberFormatException ignored) {	}
 
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
 
@@ -926,12 +926,14 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     }
 
     private void unregisterReceivers() {
-        unregisterReceiver(textReceiver);
-        unregisterReceiver(finishReceiver);
-        unregisterReceiver(msgReceiver);
-        unregisterReceiver(receivedReceiver);
-        unregisterReceiver(composeReceiver);
-        unregisterReceiver(presenceReceiver);
+        try {
+            unregisterReceiver(textReceiver);
+            unregisterReceiver(finishReceiver);
+            unregisterReceiver(msgReceiver);
+            unregisterReceiver(receivedReceiver);
+            unregisterReceiver(composeReceiver);
+            unregisterReceiver(presenceReceiver);
+        } catch (Exception ignored) { }
     }
 
     private void sendMessage() {
