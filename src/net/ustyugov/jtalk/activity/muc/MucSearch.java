@@ -19,8 +19,10 @@ package net.ustyugov.jtalk.activity.muc;
 
 import java.util.Collection;
 
+import android.app.Activity;
+import android.view.MenuItem;
 import net.ustyugov.jtalk.Colors;
-import net.ustyugov.jtalk.adapter.MucSearchAdapter;
+import net.ustyugov.jtalk.adapter.muc.MucSearchAdapter;
 import net.ustyugov.jtalk.dialog.BookmarksDialogs;
 import net.ustyugov.jtalk.dialog.MucDialogs;
 import net.ustyugov.jtalk.service.JTalkService;
@@ -44,11 +46,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 
-public class MucSearch extends SherlockActivity implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
+public class MucSearch extends Activity implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
 	private JTalkService service;
 	private String account;
 	private ImageButton searchButton;
@@ -62,11 +62,12 @@ public class MucSearch extends SherlockActivity implements OnClickListener, OnIt
 	@Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        account = getIntent().getStringExtra("account");
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
         setContentView(R.layout.muc_search);
         setTitle(android.R.string.search_go);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         	
         LinearLayout linear = (LinearLayout) findViewById(R.id.muc_search);
         linear.setBackgroundColor(Colors.BACKGROUND);

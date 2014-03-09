@@ -16,12 +16,27 @@
     	<item>Только конференции</item>
     	<item>Никогда</item>
     </string-array>
-    
-    <string-array name="vibrationValues">
-    	<item>1</item>
-    	<item>2</item>
-    	<item>3</item>
-    	<item>4</item>
-    	<item>5</item>
+
+    <string-array name="lightsArray">
+        <item>Зеленый</item>
+        <item>Синий</item>
+        <item>Красный</item>
+    </string-array>
+
+    <string-array name="servers">
+        <item>https://register.jabber.org</item>
+        <item>http://reg.jabber.ru/xreg/</item>
+        <item>https://secure.jabbim.com/reg/</item>
+    </string-array>
+
+    <string-array name="serverNames">
+        <item>Jabber.Org</item>
+        <item>Jabber.Ru</item>
+        <item>JabbIM</item>
+    </string-array>
+
+    <string-array name="rooms">
+        <item>inoi@conference.xmpp.ru</item>
+        <item>jtalk@conference.jabber.ru</item>
     </string-array>
 </resources>

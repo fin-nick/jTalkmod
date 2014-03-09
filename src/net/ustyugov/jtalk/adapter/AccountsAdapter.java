@@ -43,69 +43,62 @@ import android.view.ViewGroup;
 import com.jtalkmod.R;
 
 public class AccountsAdapter extends ArrayAdapter<Account> {
-        private JTalkService service;
-        private Activity activity;
+	private JTalkService service;
+	private Activity activity;
     private int fontSize;
-        
-        public AccountsAdapter(Activity activity) {
-                super(activity, R.id.item);
-                this.activity = activity;
+	
+	public AccountsAdapter(Activity activity) {
+		super(activity, R.id.item);
+		this.activity = activity;
         this.service = JTalkService.getInstance();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         this.fontSize = Integer.parseInt(activity.getResources().getString(R.string.DefaultFontSize));
-                try {
-                        this.fontSize = Integer.parseInt(prefs.getString("RosterSize", activity.getResources().getString(R.string.DefaultFontSize)));
-                } catch (NumberFormatException ignored) { }
-        }
-        
-        public void update() {
-                clear();
-                
-                Cursor cursor = activity.getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, null, null, AccountDbHelper._ID);
-                if (cursor != null && cursor.getCount() > 0) {
-                        cursor.moveToFirst();
-                        do {
-                                int id = cursor.getInt(cursor.getColumnIndex(AccountDbHelper._ID));
-                                String jid = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID));
+		try {
+			this.fontSize = Integer.parseInt(prefs.getString("RosterSize", activity.getResources().getString(R.string.DefaultFontSize)));
+		} catch (NumberFormatException ignored) { }
+	}
+	
+	public void update() {
+		clear();
+		
+		Cursor cursor = activity.getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, null, null, AccountDbHelper._ID);
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			do {
+				int id = cursor.getInt(cursor.getColumnIndex(AccountDbHelper._ID));
+				String jid = cursor.getString(cursor.getColumnIndex(AccountDbHelper.JID));
                 String enabled = cursor.getString(cursor.getColumnIndex(AccountDbHelper.ENABLED));
-                                
-                                Account account = new Account(id, jid);
+				
+				Account account = new Account(id, jid);
                 account.setEnabled(enabled.equals("1"));
-                                add(account);
-                        } while (cursor.moveToNext());
-                        cursor.close();
-                }
-        }
-        
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-                IconPicker ip = service.getIconPicker();
-                View v = convertView;
-                final Account account = getItem(position);
-                final String jid = account.getJid();
+				add(account);
+			} while (cursor.moveToNext());
+			cursor.close();
+		}
+	}
+	
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		IconPicker ip = service.getIconPicker();
+		View v = convertView;
+		final Account account = getItem(position);
+		final String jid = account.getJid();
         final int id = account.getId();
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
     
-                if (v == null) {
-                        LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        v = vi.inflate(R.layout.selector, null);
-                }
+		if (v == null) {
+			LayoutInflater vi = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			v = vi.inflate(R.layout.selector, null);
+		}
     
-                TextView label = (TextView) v.findViewById(R.id.item);
-                label.setText(jid);
-                label.setTextSize(fontSize);
+		TextView label = (TextView) v.findViewById(R.id.item);
+		label.setText(jid);
+		label.setTextSize(fontSize);
         label.setTextColor(Colors.PRIMARY_TEXT);
 
         ToggleButton toggle = (ToggleButton) v.findViewById(R.id.toggle);
         toggle.setChecked(account.isEnabled());
         toggle.setVisibility(View.VISIBLE);
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-            }
-        });
-
         toggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,21 +125,21 @@ public class AccountsAdapter extends ArrayAdapter<Account> {
                     if (service.isAuthenticated(jid)) {
                         service.disconnect(jid);
                         if (service.isAuthenticated()) Notify.updateNotify();
-                        else Notify.offlineNotify(service.getGlobalState());
+                        else Notify.offlineNotify(service, service.getGlobalState());
                     }
                 }
                 activity.getContentResolver().update(JTalkProvider.ACCOUNT_URI, values, "_id = '" + id + "'", null);
             }
         });
 
-                ImageView icon = (ImageView)v.findViewById(R.id.status);
-                icon.setImageResource(R.drawable.icon_offline);
-                if (service != null && service.isAuthenticated(account.getJid())) {
-                        if (jid.equals(StringUtils.parseBareAddress(service.getConnection(account.getJid()).getUser()))) {
-                                String mode = prefs.getString("currentMode", "available");
-                                icon.setImageBitmap(ip.getIconByMode(mode));
-                        }
-                }
-                return v;
-        }
+		ImageView icon = (ImageView)v.findViewById(R.id.status);
+		icon.setImageResource(R.drawable.icon_offline);
+		if (service != null && service.isAuthenticated(account.getJid())) {
+			if (jid.equals(StringUtils.parseBareAddress(service.getConnection(account.getJid()).getUser()))) {
+				String mode = prefs.getString("currentMode", "available");
+				icon.setImageBitmap(ip.getIconByMode(mode));
+			}
+		}
+		return v;
+	}
 }

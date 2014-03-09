@@ -19,10 +19,12 @@ package net.ustyugov.jtalk.activity.muc;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
+import android.view.*;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.RosterItem;
-import net.ustyugov.jtalk.adapter.BookmarksAdapter;
+import net.ustyugov.jtalk.adapter.muc.BookmarksAdapter;
 import net.ustyugov.jtalk.adapter.MainPageAdapter;
 import net.ustyugov.jtalk.db.AccountDbHelper;
 import net.ustyugov.jtalk.db.JTalkProvider;
@@ -42,15 +44,11 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -59,14 +57,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 import com.viewpagerindicator.TitlePageIndicator;
 
-public class Bookmarks extends SherlockActivity {
+public class Bookmarks extends Activity {
 	private ViewPager mPager;
 	private ArrayList<View> mPages = new ArrayList<View>();
 	private BroadcastReceiver updateReceiver;
@@ -79,7 +73,7 @@ public class Bookmarks extends SherlockActivity {
         service = JTalkService.getInstance();
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
 		setTitle(R.string.Bookmarks);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 		setContentView(R.layout.paged_activity);
         
        	LinearLayout linear = (LinearLayout) findViewById(R.id.linear);
@@ -204,28 +198,31 @@ public class Bookmarks extends SherlockActivity {
     
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
+		MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.bookmarks, menu);
         return super.onCreateOptionsMenu(menu);
     }
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+        String acc = (String) mPages.get(mPager.getCurrentItem()).getTag();
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				finish();
 				break;
   	    	case R.id.join:
-                String account = (String) mPages.get(mPager.getCurrentItem()).getTag();
-  	    		MucDialogs.joinDialog(this, account, null, null);
+  	    		MucDialogs.joinDialog(this, acc, null, null);
   	    		break;
   	    	case R.id.chats:
   	    		ChangeChatDialog.show(this);
   	    		break;
   	    	case R.id.add:
-                String acc = (String) mPages.get(mPager.getCurrentItem()).getTag();
   	    		BookmarksDialogs.AddDialog(this, acc, null, null);
   	    		break;
+            case R.id.search:
+                Intent sIntent = new Intent(this, MucSearch.class);
+                sIntent.putExtra("account", acc);
+                startActivity(sIntent);
   	    	default:
   	    		return false;
 		}

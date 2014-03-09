@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/notify"
-          android:showAsAction="always"
+          android:showAsAction="never"
           android:title="@string/DisableSound"/>
     <item android:id="@+id/chats"
-            android:showAsAction="always"
-            android:icon="@drawable/ic_menu_cc"
+	    android:showAsAction="always"
+	    android:icon="@drawable/ic_menu_cc"
         android:title="@string/ActiveChats"/>
     <item android:id="@+id/status"
         android:showAsAction="never"
         android:title="@string/Status"/>
-        <item android:id="@+id/add"
-            android:showAsAction="never"
+	<item android:id="@+id/add"
+	    android:showAsAction="never"
         android:title="@string/Add"/>
     <item android:id="@+id/bookmarks"
         android:showAsAction="never"
@@ -31,6 +31,9 @@
     <item android:id="@+id/disco"
         android:showAsAction="never"
         android:title="@string/ServiceDiscovery"/>
+    <item android:id="@+id/notes"
+          android:showAsAction="never"
+          android:title="@string/notes"/>
     <item android:id="@+id/prefs"
         android:showAsAction="never"
         android:title="@string/Settings"/>

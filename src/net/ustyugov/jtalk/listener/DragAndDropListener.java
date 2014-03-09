@@ -28,6 +28,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
+import com.jtalkmod.R;
 import net.ustyugov.jtalk.MessageItem;
 
 public class DragAndDropListener implements AdapterView.OnItemLongClickListener {
@@ -49,7 +50,7 @@ public class DragAndDropListener implements AdapterView.OnItemLongClickListener 
         String name = message.getName();
         String t = "(" + time + ")";
         if (showtime) name = t + " " + name;
-        String text = "» " + name + ": " + body + "»" + "\n";
+        String text = "> " + name + ": " + body + "\n";
 
         ClipData.Item item = new ClipData.Item(text);
 
@@ -60,7 +61,7 @@ public class DragAndDropListener implements AdapterView.OnItemLongClickListener 
 
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setPrimaryClip(dragData);
-        Toast.makeText(context, "Message is copied", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, R.string.MessagesCopied, Toast.LENGTH_SHORT).show();
         return true;
     }
 

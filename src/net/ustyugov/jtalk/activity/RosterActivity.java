@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012, Igor Ustyugov <igor@ustyugov.net>
+ * Copyright (C) 2014, Igor Ustyugov <igor@ustyugov.net>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,27 @@
 
 package net.ustyugov.jtalk.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.view.KeyEvent;
-import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-import com.actionbarsherlock.widget.SearchView;
-import net.ustyugov.jtalk.Colors;
-import net.ustyugov.jtalk.Constants;
-import net.ustyugov.jtalk.Notify;
-import net.ustyugov.jtalk.RosterItem;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.*;
+import net.ustyugov.jtalk.*;
+import net.ustyugov.jtalk.activity.account.Accounts;
 import net.ustyugov.jtalk.activity.muc.Bookmarks;
 import net.ustyugov.jtalk.activity.muc.Muc;
+import net.ustyugov.jtalk.activity.note.NotesActivity;
 import net.ustyugov.jtalk.adapter.NoGroupsAdapter;
 import net.ustyugov.jtalk.adapter.RosterAdapter;
 import net.ustyugov.jtalk.adapter.SearchAdapter;
 import net.ustyugov.jtalk.db.AccountDbHelper;
 import net.ustyugov.jtalk.db.JTalkProvider;
 import net.ustyugov.jtalk.dialog.ChangeChatDialog;
+import net.ustyugov.jtalk.dialog.ErrorDialog;
 import net.ustyugov.jtalk.dialog.MucDialogs;
 import net.ustyugov.jtalk.dialog.RosterDialogs;
 import net.ustyugov.jtalk.service.JTalkService;
@@ -47,24 +45,19 @@ import net.ustyugov.jtalk.service.JTalkService;
 import org.jivesoftware.smack.RosterEntry;
 
 import android.database.Cursor;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-public class RosterActivity extends SherlockActivity implements OnItemClickListener, OnItemLongClickListener {
+public class RosterActivity extends Activity implements OnItemClickListener, OnItemLongClickListener {
     private static final int ACTIVITY_PREFERENCES = 10;
     final static int UPDATE_INTERVAL = 500;
     static long lastUpdateReceived;
@@ -87,6 +80,7 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this));
         Colors.updateColors(this);
         startService(new Intent(this, JTalkService.class));
         service = JTalkService.getInstance();
@@ -98,7 +92,7 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
         LinearLayout roster = (LinearLayout) findViewById(R.id.roster_linear);
     	roster.setBackgroundColor(Colors.BACKGROUND);
     	
-    	getSupportActionBar().setHomeButtonEnabled(true);
+    	getActionBar().setHomeButtonEnabled(true);
         
         statusArray = getResources().getStringArray(R.array.statusArray);
         rosterAdapter = new RosterAdapter(this);
@@ -124,12 +118,21 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
             RosterDialogs.changeStatusDialog(this, null, null);
         }
 
+        if (getIntent().getBooleanExtra("password", false)) {
+            String account = getIntent().getStringExtra("account");
+            RosterDialogs.passwordDialog(this, account);
+        }
+
         File table = new File(Constants.PATH_SMILES + "/default/table.xml");
         if (!table.exists()) {
             new CreateDefaultSmiles().execute();
         } else {
             Cursor cursor = getContentResolver().query(JTalkProvider.ACCOUNT_URI, null, AccountDbHelper.ENABLED + " = '" + 1 + "'", null, null);
             if (cursor == null || cursor.getCount() < 1) startActivity(new Intent(this, Accounts.class));
+        }
+
+        if (prefs.getBoolean("BUG", false)) {
+            new ErrorDialog(this).show();
         }
     }
     
@@ -199,21 +202,11 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
         if (requestCode == ACTIVITY_PREFERENCES) {
             if (resultCode == RESULT_OK) {
                 Intent intent = getIntent();
+                intent.putExtra("password", false);
                 finish();
                 startActivity(intent);
-                
-                LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-                if (prefs.getBoolean("Locations", false)) {
-                        Location gps = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        if (gps == null) service.sendLocation(lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
-                        else service.sendLocation(gps);
-                        
-                        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, Constants.LOCATION_MIN_TIME, Constants.LOCATION_MIN_DIST, service.getLocationListener());
-                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, Constants.LOCATION_MIN_TIME, Constants.LOCATION_MIN_DIST, service.getLocationListener());
-                } else {
-                        lm.removeUpdates(service.getLocationListener());
-                        service.sendLocation(null);
-                }
+
+                service.removeSmiles();
             }
         }
     }
@@ -229,7 +222,7 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
     	if (menu != null) {
             if (gridView.getAdapter() instanceof SearchAdapter) return;
             menu.clear();
-            getSupportMenuInflater().inflate(R.menu.roster, menu);
+            getMenuInflater().inflate(R.menu.roster, menu);
     		menu.findItem(R.id.add).setEnabled(service.isAuthenticated());
             menu.findItem(R.id.muc).setEnabled(service.isAuthenticated());
             menu.findItem(R.id.disco).setEnabled(service.isAuthenticated());
@@ -246,47 +239,45 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
                 sound.setIcon(R.drawable.ic_menu_sound_on);
             }
 
-            if (Build.VERSION.SDK_INT >= 8) {
-                MenuItem.OnActionExpandListener listener = new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem item) {
-                        gridView.setAdapter(null);
-                        searchString = null;
-                        updateList();
-                        updateMenu();
-                        return true;
-                    }
+            MenuItem.OnActionExpandListener listener = new MenuItem.OnActionExpandListener() {
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem item) {
+                    gridView.setAdapter(null);
+                    searchString = null;
+                    updateList();
+                    updateMenu();
+                    return true;
+                }
 
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem item) {
-                        gridView.setAdapter(searchAdapter);
-                        searchString = "";
-                        updateList();
-                        return true;
-                    }
-                };
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem item) {
+                    gridView.setAdapter(searchAdapter);
+                    searchString = "";
+                    updateList();
+                    return true;
+                }
+            };
 
-                SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
-                searchView.setQueryHint(getString(android.R.string.search_go));
-                searchView.setSubmitButtonEnabled(false);
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        searchString = newText;
-                        updateList();
-                        return true;
-                    }
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-                });
+            SearchView searchView = new SearchView(this);
+            searchView.setQueryHint(getString(android.R.string.search_go));
+            searchView.setSubmitButtonEnabled(false);
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchString = newText;
+                    updateList();
+                    return true;
+                }
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return true;
+                }
+            });
 
-                MenuItem item = menu.findItem(R.id.search);
-                item.setActionView(searchView);
-                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-                item.setOnActionExpandListener(listener);
-            } else menu.removeItem(R.id.search);
+            MenuItem item = menu.findItem(R.id.search);
+            item.setActionView(searchView);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+            item.setOnActionExpandListener(listener);
             super.onCreateOptionsMenu(menu);
     	}
     }
@@ -334,6 +325,9 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
   	    	case R.id.disco:
   	    		startActivity(new Intent(this, ServiceDiscovery.class));
   	    		break;
+            case R.id.notes:
+                startActivity(new Intent(this, NotesActivity.class));
+                break;
             case R.id.notify:
                 if (prefs.getBoolean("soundDisabled", false)) service.setPreference("soundDisabled", false);
                 else service.setPreference("soundDisabled", true);
@@ -384,12 +378,12 @@ public class RosterActivity extends SherlockActivity implements OnItemClickListe
     private void updateStatus() {
     	if (service.isAuthenticated()) {
    			String status = statusArray[prefs.getInt("currentSelection", 0)];
-   			String substatus = prefs.getString("currentStatus", "");
-   			getSupportActionBar().setTitle(status);
-   			getSupportActionBar().setSubtitle(substatus);
+//   			String substatus = prefs.getString("currentStatus", "");
+   			getActionBar().setTitle(status);
+   			getActionBar().setSubtitle(service.getGlobalState());
    		} else {
-   			getSupportActionBar().setTitle(getString(R.string.NotConnected));
-   			getSupportActionBar().setSubtitle(service.getGlobalState());
+   			getActionBar().setTitle(getString(R.string.NotConnected));
+   			getActionBar().setSubtitle(service.getGlobalState());
    		}
     }
     

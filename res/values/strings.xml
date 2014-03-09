@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">jTalkmod</string>
-    <string name="version">0.47.1</string>
-    <string name="build">391</string>
+    <string name="version">0.48</string>
+    <string name="build">403</string>
     
     <string name="Connect">Connect</string>
     <string name="Disconnect">Disconnect</string>
@@ -43,6 +43,10 @@
     <string name="Composes">Composes message...</string>
     <string name="Templates">Templates</string>
     <string name="and">and</string>
+    <string name="Chats">Chats</string>
+    <string name="To">To</string>
+    <string name="MessagesCopied">Messages is copied</string>
+    <string name="notes">Notes</string>
 
     <!--  Service Discovery -->
     <string name="Registration">Registration</string>
@@ -56,6 +60,8 @@
 	<string name="RingtoneConference">Ringtone for conferences</string>
 	<string name="RingtoneDirect">Ringtone for direct messages</string>
 	<string name="Vibration">Vibration</string>
+    <string name="IndicatorColor">Indicator color</string>
+    <string name="IgnoreUsers">Ignore Users</string>
 	<string name="Notifications">Notifications</string>
     <string name="Resource">Resource</string>
     <string name="Autoconnect">Auto connect</string>
@@ -77,10 +83,14 @@
     <string name="KeepHistory">Keep history</string>
     <string name="LoadHistory">Load history</string>
     <string name="Autostatus">Autostatus</string>
+    <string name="ScreenTurnsOn">Screen turns On</string>
+    <string name="ScreenTurnsOff">Screen turns Off</string>
     <string name="DelayAway">Delay before \"Away\"</string>
     <string name="DelayXa">Delay before \"Xa\"</string>
     <string name="AutoStatusTextAway">Autostatus \"Away\" %time%</string>
     <string name="AutoStatusTextXa">Autostatus \"Extended Away\" %time%</string>
+    <string name="AwayPriority">Away priority</string>
+    <string name="ExtendedAwayPriority">Extended Away priority</string>
     <string name="ShowGroups">Show Groups</string>
     <string name="ShowStatuses">Show Statuses</string>
     <string name="AutoJoin">Auto join</string>
@@ -91,6 +101,8 @@
     <string name="ShowSmiles">Show smiles</string>
     <string name="Autoscroll">Autoscroll</string>
     <string name="ShowClientsIcons">Show clients icons</string>
+    <string name="Icons">Icons</string>
+    <string name="ShowSoundIconOnActionBar">Show sound icon on ActionBar</string>
     <string name="DarkColors">Dark colors</string>
     <string name="DeleteHistoryOnExit">Delete history on exit</string>
     <string name="MessageInNotification">Message in notification</string>
@@ -98,6 +110,12 @@
     <string name="Size">Size</string>
     <string name="Interface">Interface</string>
     <string name="Sidebar">Sidebar</string>
+    <string name="IgnoreList">Ignore-List</string>
+    <string name="AutoАctivate">Auto Аctivate</string>
+    <string name="ActivateIgnoreListOnStart">Activate Ignore-List on start</string>
+    <string name="Default">Default</string>
+    <string name="IgnoreListDefaultList">Ignore-List is a default list</string>
+    <string name="Experimental">Experimental</string>
     <string name="ShowMucGroup">Always show MUC group</string>
     <string name="SortByStatuses">Sort by statuses</string>
     <string name="ShowSelfResources">Show self resources</string>
@@ -106,7 +124,9 @@
     <string name="AddAfterNick">Add after nick</string>
     <string name="NumberOfCharacters">Number of characters</string>
     <string name="Columns">Columns</string>
+    <string name="TheNumberColumnsDialog">The number of columns in the dialog</string>
     <string name="Locations">Send location information</string>
+    <string name="SendTunes">Send Tunes</string>
     <string name="AutostartOnBoot">Autostart on boot</string>
     <string name="CompactMode">Compact mode</string>
     <string name="UseColors">Use colors</string>
@@ -119,6 +139,9 @@
     <string name="DisableSound">Disable sound</string>
     <string name="EnableSound">Enable sound</string>
     <string name="MucHistorySize">History size</string>
+    <string name="hideVersion">Hide client version</string>
+    <string name="Version">Version</string>
+    <string name="AlwaysVisibleState">Always visible state</string>
 
     <!--  Menus -->
     <string name="Update">Update</string>
@@ -151,6 +174,7 @@
     <string name="DeleteHistory">Delete History</string>
     <string name="SelectText">Select text</string>
     <string name="Close">Close</string>
+    <string name="CloseAll">Close all</string>
     <string name="ServiceDiscovery">Service Discovery</string>
     <string name="PasteSmile">Paste smile</string>
     <string name="PasteNick">Paste nick</string>
@@ -180,10 +204,10 @@
     <string name="PrivacyLists">Privacy Lists</string>
     <string name="HideOfflineContacts">Hide offline contacts</string>
     <string name="ShowOfflineContacts">Show offline contacts</string>
-    <string name="SelectMessage">Select message</string>
-    <string name="DeselectMessage">Deselect message</string>
-    <string name="DeselectAllMessages">Deselect all messages</string>
-    
+    <string name="SelectMessage">Select messages</string>
+    <string name="Finish">Finish</string>
+    <string name="SendPhoto">Send photo</string>
+
     <!-- Dialogs -->
     <string name="Room">Room</string>
     <string name="From">From</string>
@@ -199,6 +223,7 @@
     <string name="SelectResource">Select resource</string>
     <string name="AcceptFile">Accept file?</string>
     <string name="Reason">Reason</string>
+    <string name="SavePassword">Save password</string>
     
     <!-- vCard -->
     <string name="vcard">vCard</string>

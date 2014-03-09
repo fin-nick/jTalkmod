@@ -1,13 +1,13 @@
 <package author="fin">
     <smile file="1.png">
-        <value>:-D</value>
-        <value>:D</value>
+        <value>;-)</value>
+        <value>;)</value>
     </smile>
 
     <smile file="2.png">
-        <value>O_o</value>
-        <value>o_O</value>
-        <value>O_O</value>
+        <value>:-|</value>
+        <value>:|</value>
+        <value>=|</value>
     </smile>
 
     <smile file="3.png">
@@ -17,22 +17,13 @@
     </smile>
 
     <smile file="4.png">
-        <value>:-|</value>
-        <value>:|</value>
-        <value>=|</value>
-    </smile>
-
-    <smile file="5.png">
-        <value>:-O</value>
-        <value>:O</value>
-        <value>:-o</value>
-        <value>:o</value>
-    </smile>
-
-    <smile file="6.png">
         <value>:-)</value>
         <value>:)</value>
         <value>=)</value>
+    </smile>
+
+    <smile file="6.png">
+        <value>*HISTERICS*</value>
     </smile>
 
     <smile file="7.png">
@@ -43,337 +34,45 @@
     </smile>
 
     <smile file="8.png">
-        <value>;-)</value>
-        <value>;)</value>
-    </smile>
-
-    <smile file="9.png">
-        <value>:-*</value>
-        <value>*KISS*</value>
-    </smile>
-
-    <smile file="10.png">
         <value>*ROFL*</value>
         <value>*rofl*</value>
     </smile>
 
-    <smile file="11.png">
-        <value>*BOTAN*</value>
-    </smile>
-
-    <smile file="12.png">
-        <value>@};--</value>
-        <value>*BOUQUET*</value>
-        <value>@}->--</value>
-    </smile>
-
-    <smile file="13.png">
-        <value>*PREVED*</value>
-        <value>*preved*</value>
-    </smile>
-
-    <smile file="14.png">
-        <value>*BEER*</value>
-        <value>*DRINK*</value>
-        <value>*beer*</value>
-        <value>:beer:</value>
-    </smile>
-
-    <smile file="15.png">
-        <value>:-"</value>
-        <value>*WHISTLE*</value>
-    </smile>
-
-    <smile file="16.png">
-        <value>*WALL*</value>
-        <value>*wall*</value>
-    </smile>
-
-    <smile file="17.png">
-        <value>*KING*</value>
-        <value>*king*</value>
-        <value>*crown*</value>
-    </smile>
-
-    <smile file="18.png">
-        <value>:'(</value>
-        <value>:'-(</value>
-        <value>*CRY*</value>
-        <value>;-(</value>
-        <value>;(</value>
-    </smile>
-
-    <smile file="19.png">
-        <value>*MUSIC*</value>
-        <value>*music*</value>
-        <value>:music:</value>
-    </smile>
-
-    <smile file="20.png">
-        <value>*WRITE*</value>
-        <value>*write*</value>
-    </smile>
-
-    <smile file="21.png">
-        <value>*GIRL DRINK*</value>
-        <value>*GIRL_DRINK*</value>
-    </smile>
-
-    <smile file="22.png">
-        <value>*POPCORN*</value>
-    </smile>
-
-    <smile file="23.png">
-        <value>*HELP*</value>
-        <value>*HELP_ME*</value>
-        <value>*help*</value>
-    </smile>
-
-    <smile file="24.png">
-        <value>(_|_)</value>
-        <value>*ASS*</value>
-        <value>*ass*</value>
-        <value>( | )</value>
-    </smile>
-
-    <smile file="25.png">
-        <value>*CENSORED*</value>
-        <value>*censored*</value>
-    </smile>
-
-    <smile file="26.png">
-        <value>*VAVA*</value>
-        <value>*BLACK_EYE*</value>
-        <value>*BLACKEYE*</value>
-    </smile>
-
-    <smile file="27.png">
-        <value>*THUMBS_UP*</value>
-        <value>*THUMBSUP*</value>
-        <value>*GOOD*</value>
-    </smile>
-
-    <smile file="28.png">
-        <value>]:-></value>
-        <value>*DEVIL*</value>
-        <value>}:-></value>
-    </smile>
-
-    <smile file="29.png">
-        <value>:-!</value>
-        <value>:!</value>
-        <value>*SICK*</value>
-    </smile>
-
-    <smile file="30.png">
-        <value>*VINSENT*</value>
-    </smile>
-
-    <smile file="31.png">
-        <value>*facepalm*</value>
-    </smile>
-
-    <smile file="32.png">
+    <smile file="9.png">
         <value>*KISSED*</value>
         <value>*kissed*</value>
     </smile>
 
-    <smile file="33.png">
-        <value>:-X</value>
-        <value>*TSSS*</value>
-        <value>*SECRET*</value>
-        <value>*secret*</value>
-    </smile>
-
-    <smile file="34.png">
-        <value>*SLEEP*</value>
-        <value>(Z)</value>
-    </smile>
-
-    <smile file="35.png">
-        <value>:-[</value>
-        <value>:[</value>
-        <value>:blush:</value>
-    </smile>
-
-    <smile file="36.png">
-        <value>*DANCE*</value>
-        <value>*dance*</value>
-        <value>:DANCE:</value>
-        <value>:dance:</value>
-    </smile>
-
-    <smile file="37.png">
-        <value>*COFFE*</value>
-        <value>*coffe*</value>
-        <value>*tea*</value>
-    </smile>
-
-    <smile file="38.png">
-        <value>*nose*</value>
-    </smile>
-
-    <smile file="39.png">
-        <value>*SMOKE*</value>
-        <value>*SMOKING*</value>
-    </smile>
-
-    <smile file="40.png">
-        <value>*RUSSIAN*</value>
-    </smile>
-
-    <smile file="41.png">
-        <value>*SWOON*</value>
-        <value>*swoon*</value>
-    </smile>
-
-    <smile file="42.png">
-        <value>*ANGRY*</value>
-        <value>:-@</value>
-        <value>*angry*</value>
-    </smile>
-
-    <smile file="43.png">
-        <value>:cool:</value>
-        <value>*COOLBOY*</value>
-    </smile>
-
-    <smile file="44.png">
-        <value>*ALCOHOLIC*</value>
-        <value>*alcoholic*</value>
-    </smile>
-
-    <smile file="45.png">
-        <value>*FUCK*</value>
-        <value>*fuck*</value>
-        <value>*FUCK_YOU*</value>
-    </smile>
-
-    <smile file="46.png">
-        <value>*dntknw*</value>
-        <value>*DONT_KNOW*</value>
-        <value>*unknown*</value>
-    </smile>
-
-    <smile file="47.png">
-        <value>:-E</value>
-    </smile>
-
-    <smile file="48.png">
-        <value>*JOKINGLY*</value>
-        <value>*jokingly*</value>
-        <value>:JOKINGLY:</value>
-        <value>:jokingly:</value>
-    </smile>
-
-    <smile file="49.png">
-        <value>*cold*</value>
-        <value>*ZAMERZ*</value>
-        <value>*ILL*</value>
-    </smile>
-
-    <smile file="50.png">
-        <value>*GIVE_HEART*</value>
-        <value>*give_heart*</value>
-    </smile>
-
-    <smile file="51.png">
-        <value>*FIGA*</value>
-        <value>*figa*</value>
-        <value>*FIG*</value>
-        <value>:FIGA:</value>
-    </smile>
-
-    <smile file="52.png">
-        <value>8-)</value>
-        <value>B-)</value>
-        <value>B)</value>
-    </smile>
-
-    <smile file="53.png">
+    <smile file="10.png">
         <value>*ERMM*</value>
         <value>*ermm*</value>
     </smile>
 
-    <smile file="54.png">
-        <value>*YES*</value>
-        <value>*yes*</value>
+    <smile file="11.png">
+        <value>:cool:</value>
+        <value>*COOLBOY*</value>
     </smile>
 
-    <smile file="55.png">
-        <value>*BYE*</value>
-        <value>*bye*</value>
-        <value>EXIT</value>
+    <smile file="12.png">
+        <value>*facepalm*</value>
     </smile>
 
-    <smile file="56.png">
-        <value>*BB*</value>
-        <value>*STRONG*</value>
-        <value>*bb*</value>
-        <value>*strong*</value>
+    <smile file="14.png">
+        <value>:-O</value>
+        <value>:O</value>
+        <value>:-o</value>
+        <value>:o</value>
     </smile>
 
-    <smile file="57.png">
-        <value>*READ*</value>
-        <value>*read*</value>
-        <value>*READING*</value>
-        <value>*reading*</value>
-        <value>*NEWSPAPER*</value>
-        <value>*newspaper*</value>
+    <smile file="15.png">
+        <value>O_o</value>
+        <value>o_O</value>
+        <value>O_O</value>
     </smile>
 
-    <smile file="58.png">
-        <value>*ATATA*</value>
-        <value>*atata*</value>
-    </smile>
-
-    <smile file="59.png">
-        <value>*FOOD*</value>
-        <value>*food*</value>
-    </smile>
-
-    <smile file="60.png">
-        <value>%)</value>
-        <value>%-)</value>
-        <value>*OUT*</value>
-        <value>*WACKO*</value>
-    </smile>
-
-    <smile file="61.png">
-        <value>*CRAZY*</value>
-        <value>*crazy*</value>
-    </smile>
-
-    <smile file="62.png">
-        <value>;D</value>
-        <value>;-D</value>
-        <value>*ACUTE*</value>
-        <value>*acute*</value>
-    </smile>
-
-    <smile file="63.png">
-        <value>*HACKER*</value>
-    </smile>
-
-    <smile file="64.png">
-        <value>*WASH*</value>
-        <value>*wash*</value>
-        <value>*SHOWER*</value>
-        <value>*shower*</value>
-    </smile>
-
-    <smile file="65.png">
-        <value>*FLIRT*</value>
-    </smile>
-
-    <smile file="66.png">
-        <value>*KISSING*</value>
-        <value>*kissing*</value>
-    </smile>
-
-    <smile file="67.png">
-        <value>*SEX*</value>
-        <value>*sex*</value>
-        <value>:sex:</value>
+    <smile file="17.png">
+        <value>]:-></value>
+        <value>*DEVIL*</value>
+        <value>}:-></value>
     </smile>
 </package>

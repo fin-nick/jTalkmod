@@ -25,7 +25,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import net.ustyugov.jtalk.Notify;
-import net.ustyugov.jtalk.activity.AddAccountActivity;
+import net.ustyugov.jtalk.activity.account.AddAccountActivity;
 import net.ustyugov.jtalk.db.AccountDbHelper;
 import net.ustyugov.jtalk.db.JTalkProvider;
 
@@ -85,7 +85,7 @@ public class AuthenticationService extends Service {
             if (service.isAuthenticated(jid)) {
                 service.disconnect(jid);
                 if (service.isAuthenticated()) Notify.updateNotify();
-                else Notify.offlineNotify(service.getGlobalState());
+                else Notify.offlineNotify(service, service.getGlobalState());
             }
 
             return result;

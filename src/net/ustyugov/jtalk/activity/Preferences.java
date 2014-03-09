@@ -21,8 +21,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.MenuItem;
+import android.preference.*;
+import android.view.MenuItem;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.IconPicker;
 import net.ustyugov.jtalk.service.JTalkService;
@@ -34,20 +34,9 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.PreferenceManager;
 
-public class Preferences extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener {
+public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 //	private CheckBoxPreference compression;
-	private CheckBoxPreference autoCollapse;
-	private EditTextPreference delayAway;
-	private EditTextPreference textAway;
-	private EditTextPreference delayXa;
-	private EditTextPreference textXa;
-	private EditTextPreference priorityAway;
-	private EditTextPreference priorityXa;
 	private ListPreference smilespack;
     private ListPreference colortheme;
 	private ListPreference iconspack;
@@ -56,7 +45,7 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 		CharSequence[] smiles = new CharSequence[1];
         CharSequence[] colors;
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -93,7 +82,7 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 		List<PackageInfo> list = getPackageManager().getInstalledPackages(0);
 		for (PackageInfo pi : list) {
 			String pn = pi.packageName;
-			if (pn.startsWith("com.jtalk2.iconpack.")) {
+			if (pn.startsWith("com.jtalkmod.iconpack.")) {
 				icons.add(pn);
 				
 				try {
@@ -106,16 +95,7 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 			}
 		}
 		
-		autoCollapse = (CheckBoxPreference) getPreferenceScreen().findPreference("CollapseBigMessages");
-		autoCollapse.setEnabled(prefs.getBoolean("EnableCollapseMessages", true) ? true : false);
-		
-		delayAway = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusAway");
-		textAway = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusTextAway");
-		delayXa  = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusXa");
-		textXa   = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusTextXa");
-		priorityAway = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusPriorityAway");
-		priorityXa = (EditTextPreference) getPreferenceScreen().findPreference("AutoStatusPriorityXa");
-//		compression  = (CheckBoxPreference) getPreferenceScreen().findPreference("UseCompression"); 
+//		compression  = (CheckBoxPreference) getPreferenceScreen().findPreference("UseCompression");
 		smilespack = (ListPreference) getPreferenceScreen().findPreference("SmilesPack");
 		smilespack.setEntries(smiles);
 		smilespack.setEntryValues(smiles);
@@ -131,15 +111,9 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 		if (icons.size() == 1) iconspack.setValue("default");
 		
 //		compression.setEnabled(prefs.getBoolean("EnableTls", true) ? true : false);
-		delayAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		textAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		delayXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		textXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		priorityAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		priorityXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		
+
 		if (smiles.length > 0) {
-			smilespack.setEnabled(prefs.getBoolean("ShowSmiles", true) ? true : false);
+			smilespack.setEnabled(prefs.getBoolean("ShowSmiles", true));
 		} else smilespack.setEnabled(false);
 		
 		getPreferenceScreen().findPreference("version").setSummary(R.string.version);
@@ -177,15 +151,8 @@ public class Preferences extends SherlockPreferenceActivity implements OnSharedP
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-		smilespack.setEnabled(prefs.getBoolean("ShowSmiles", true) ? true : false);
-		autoCollapse.setEnabled(prefs.getBoolean("EnableCollapseMessages", true) ? true : false);
-		delayAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		textAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		delayXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		textXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		priorityAway.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		priorityXa.setEnabled(prefs.getBoolean("AutoStatus", false) ? true : false);
-		
+		smilespack.setEnabled(prefs.getBoolean("ShowSmiles", true));
+
 		String iconPack = prefs.getString("IconPack", "default");
 		IconPicker ip = JTalkService.getInstance().getIconPicker();
 		if (ip != null && !iconPack.equals(ip.getPackName())) ip.loadIconPack();

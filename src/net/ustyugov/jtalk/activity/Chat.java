@@ -21,16 +21,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.*;
+import android.net.Uri;
+import android.view.*;
 import android.widget.*;
-import com.actionbarsherlock.widget.SearchView;
 import net.ustyugov.jtalk.*;
 import net.ustyugov.jtalk.activity.filetransfer.SendFileActivity;
+import net.ustyugov.jtalk.activity.note.TemplatesActivity;
 import net.ustyugov.jtalk.activity.vcard.VCardActivity;
 import net.ustyugov.jtalk.adapter.*;
+import net.ustyugov.jtalk.adapter.muc.MucChatAdapter;
+import net.ustyugov.jtalk.adapter.muc.MucUserAdapter;
 import net.ustyugov.jtalk.db.JTalkProvider;
 import net.ustyugov.jtalk.db.MessageDbHelper;
 import net.ustyugov.jtalk.dialog.*;
+import net.ustyugov.jtalk.imgur.ImgurUploadTask;
 import net.ustyugov.jtalk.listener.DragAndDropListener;
 import net.ustyugov.jtalk.service.JTalkService;
 import net.ustyugov.jtalk.smiles.Smiles;
@@ -44,30 +51,21 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import android.app.AlertDialog;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
 import com.jtalkmod.R;
 
-public class Chat extends SherlockActivity implements View.OnClickListener, OnScrollListener, OnItemLongClickListener {
+public class Chat extends Activity implements View.OnClickListener, OnScrollListener {
     public static final int REQUEST_TEMPLATES = 1;
+    public static final int REQUEST_FILE = 2;
 
     private boolean isMuc = false;
     private boolean isPrivate = false;
@@ -85,8 +83,6 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     private MyListView listView;
     private ListView chatsList;
     private ListView nickList;
-    private List<MessageItem> msgList = new ArrayList<MessageItem>();
-    private List<String> selectedMessages = new ArrayList<String>();
     private EditText messageInput;
     private Button sendButton;
 
@@ -96,7 +92,6 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     private String searchString = "";
     private boolean compose = false;
     private int maxCount = 0;
-    private int maxMucCount = 0;
 
     private BroadcastReceiver textReceiver;
     private BroadcastReceiver finishReceiver;
@@ -109,25 +104,26 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     private Smiles smiles;
 
     private RosterItem rosterItem;
+    private ChatAdapter.ViewMode viewMode = ChatAdapter.ViewMode.single;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this));
         service = JTalkService.getInstance();
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         try {
             maxCount = Integer.parseInt(prefs.getString("MaxLogMessages", "0"));
-            maxMucCount = Integer.parseInt(prefs.getString("MaxMucMessages", "0"));
         } catch (NumberFormatException ignored) {	}
 
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
 
         chatsSpinnerAdapter = new ChatsSpinnerAdapter(this);
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setListNavigationCallbacks(chatsSpinnerAdapter, new OnNavigationListener() {
+        actionBar.setListNavigationCallbacks(chatsSpinnerAdapter, new ActionBar.OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int position, long itemId) {
                 RosterItem item = chatsSpinnerAdapter.getItem(position);
@@ -153,7 +149,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         LinearLayout linear = (LinearLayout) findViewById(R.id.chat_linear);
         linear.setBackgroundColor(Colors.BACKGROUND);
 
-        smiles = new Smiles(this);
+        smiles = service.getSmiles(this);
 
         sidebar = (LinearLayout) findViewById(R.id.sidebar);
 
@@ -213,8 +209,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         listView.setOnScrollListener(this);
         listView.setDividerHeight(0);
         listView.setAdapter(listAdapter);
-        if (Build.VERSION.SDK_INT >= 11) listView.setOnItemLongClickListener(new DragAndDropListener(this));
-        else listView.setOnItemLongClickListener(this);
+        listView.setOnItemLongClickListener(new DragAndDropListener(this));
 
         nickList = (ListView) findViewById(R.id.muc_user_list);
         nickList.setCacheColorHint(0x00000000);
@@ -252,19 +247,6 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         });
 
         messageInput = (EditText)findViewById(R.id.messageInput);
-        messageInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (keyEvent != null && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    if (prefs.getBoolean("SendOnEnter", false)) {
-                        if (keyEvent.isShiftPressed() || keyEvent.isAltPressed()) messageInput.append("\n");
-                        else onClick(sendButton);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
 
         sendButton  = (Button)findViewById(R.id.SendButton);
         sendButton.setEnabled(false);
@@ -291,7 +273,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         if (service.getConferencesHash(account).containsKey(jid)) {
             isMuc = true;
             muc = service.getConferencesHash(account).get(jid);
-            messageInput.setHint("From " + StringUtils.parseName(account));
+            messageInput.setHint(getString(R.string.From) + " " + StringUtils.parseName(account));
 
             String group = listMucAdapter.getGroup();
             if (listView.getAdapter() instanceof ChatAdapter) {
@@ -314,11 +296,11 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
             if (resource == null || resource.equals("")) resource = service.getResource(account, jid);
 
             if (resource != null && !resource.equals("")) {
-                messageInput.setHint("To " + resource + " from " + StringUtils.parseName(account));
-            } else messageInput.setHint("From " + StringUtils.parseName(account));
+                messageInput.setHint(getString(R.string.To) + " " + resource + " " + getString(R.string.From) + " " + StringUtils.parseName(account));
+            } else messageInput.setHint(getString(R.string.From) + " " + StringUtils.parseName(account));
 
             String j = listAdapter.getJid();
-            listAdapter.update(jid, msgList, searchString);
+            listAdapter.update(account, jid, searchString, viewMode);
             if (listView.getAdapter() instanceof MucChatAdapter) {
                 listView.setAdapter(listAdapter);
                 listView.setScroll(true);
@@ -342,15 +324,25 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
 
         messageInput.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                int length = s.length();
-                if (length > 0) {
-                    if (!isMuc) {
-                        if (!compose) {
-                            compose = true;
-                            service.setChatState(account, jid, ChatState.composing);
+                if (s != null && s.length() > 0) {
+
+                    // Send on Enter
+                    String ch = s.charAt(s.length()-1) + "";
+                    if (ch.equals("\n")) {
+                        if (prefs.getBoolean("SendOnEnter", false)) {
+                            Editable sendText = s.delete(s.length() - 1, s.length());
+                            messageInput.setText(sendText);
+                            onClick(sendButton);
                         }
+                    } else {
+                        if (!isMuc) {
+                            if (!compose) {
+                                compose = true;
+                                service.setChatState(account, jid, ChatState.composing);
+                            }
+                        }
+                        sendButton.setEnabled(service.isAuthenticated(account));
                     }
-                    sendButton.setEnabled(true);
                 } else {
                     if (!isMuc) {
                         if (compose) {
@@ -371,7 +363,8 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         if (!prefs.getBoolean("NoMaxLines", true)) messageInput.setMaxLines(3);
 
         if (service.isAuthenticated()) Notify.updateNotify();
-        else Notify.offlineNotify(service.getGlobalState());
+        else Notify.offlineNotify(this, service.getGlobalState());
+        Notify.cancelNotify(this, account, jid);
 
         updateChats();
         updateUsers();
@@ -384,7 +377,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         createOptionMenu();
 
         int position = chatsSpinnerAdapter.getPosition(account, jid);
-        getSupportActionBar().setSelectedNavigationItem(position);
+        getActionBar().setSelectedNavigationItem(position);
         rosterItem = chatsSpinnerAdapter.getItem(position);
 
         if (searchString.length() > 0) {
@@ -395,7 +388,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         }
 
         updateList();
-        if (msgList.isEmpty()) loadStory(false);
+        if (service.getMessageList(account, jid).isEmpty()) loadStory(false);
 
         int unreadMessages = service.getMessagesCount(account, jid);
         int lastPosition = service.getLastPosition(jid);
@@ -425,7 +418,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         if (!isMuc)  {
             service.setChatState(account, jid, ChatState.active);
             service.setResource(account, jid, resource);
-            if (msgList.isEmpty()) service.removeActiveChat(account, jid);
+            if (service.getMessageList(account, jid).isEmpty()) service.removeActiveChat(account, jid);
         }
         service.setCurrentJid("me");
         service.setText(jid, messageInput.getText().toString());
@@ -435,7 +428,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (msgList.isEmpty()) {
+        if (service.getMessageList(account,jid).isEmpty()) {
             if (!isMuc) service.setChatState(account, jid, ChatState.gone);
         }
 //        msgList.clear();
@@ -445,9 +438,11 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
 
     @Override
     public boolean onKeyUp(int key, KeyEvent event) {
-        if (key == KeyEvent.KEYCODE_SEARCH && Build.VERSION.SDK_INT >= 8) {
+        if (key == KeyEvent.KEYCODE_SEARCH) {
             MenuItem item = menu.findItem(R.id.search);
             item.expandActionView();
+        } else if (key == KeyEvent.KEYCODE_ENTER) {
+            onClick(sendButton);
         }
         return super.onKeyUp(key, event);
     }
@@ -462,17 +457,20 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     private void createOptionMenu() {
         if (menu != null) {
             menu.clear();
-            final MenuInflater inflater = getSupportMenuInflater();
+            final MenuInflater inflater = getMenuInflater();
 
-            if (isMuc) inflater.inflate(R.menu.muc_chat, menu);
-            else {
-                inflater.inflate(R.menu.chat, menu);
-                if (isPrivate) menu.findItem(R.id.resource).setVisible(false);
-                else menu.findItem(R.id.resource).setVisible(true);
-            }
+            if (viewMode == ChatAdapter.ViewMode.multi) {
+                inflater.inflate(R.menu.select_messages, menu);
+                super.onCreateOptionsMenu(menu);
+            } else {
+                if (isMuc) inflater.inflate(R.menu.muc_chat, menu);
+                else {
+                    inflater.inflate(R.menu.chat, menu);
+                    if (isPrivate) menu.findItem(R.id.resource).setVisible(false);
+                    else menu.findItem(R.id.resource).setVisible(true);
+                }
 
-            if (Build.VERSION.SDK_INT >= 8) {
-                OnActionExpandListener listener = new OnActionExpandListener() {
+                MenuItem.OnActionExpandListener listener = new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionCollapse(MenuItem item) {
                         searchString = "";
@@ -487,7 +485,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                     }
                 };
 
-                SearchView searchView = new com.actionbarsherlock.widget.SearchView(getSupportActionBar().getThemedContext());
+                SearchView searchView = new SearchView(this);
                 searchView.setQueryHint(getString(android.R.string.search_go));
                 searchView.setSubmitButtonEnabled(false);
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -507,22 +505,28 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                 item.setActionView(searchView);
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
                 item.setOnActionExpandListener(listener);
-            } else menu.removeItem(R.id.search);
 
-            if (prefs.getBoolean("InMUC", false)) menu.removeItem(R.id.sidebar);
-            else {
-                MenuItem item = menu.findItem(R.id.sidebar);
-                item.setTitle(prefs.getBoolean("EnabledSidebar", true) ? R.string.HideSidebar : R.string.ShowSidebar);
+                if (prefs.getBoolean("InMUC", false)) menu.removeItem(R.id.sidebar);
+                else {
+                    MenuItem sidebar = menu.findItem(R.id.sidebar);
+                    sidebar.setTitle(prefs.getBoolean("EnabledSidebar", true) ? R.string.HideSidebar : R.string.ShowSidebar);
+                }
+
+                if (!prefs.getBoolean("ShowSmiles", true)) menu.removeItem(R.id.smile);
+                super.onCreateOptionsMenu(menu);
             }
-
-            if (!prefs.getBoolean("ShowSmiles", true)) menu.removeItem(R.id.smile);
-            super.onCreateOptionsMenu(menu);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.imgur:
+                Intent fIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                fIntent.setType("image/*");
+                fIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(Intent.createChooser(fIntent, getString(R.string.SelectFile)), REQUEST_FILE);
+                break;
             case android.R.id.home:
                 startActivity(new Intent(this, RosterActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 finish();
@@ -612,8 +616,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                 break;
             case R.id.delete_history:
                 getContentResolver().delete(JTalkProvider.CONTENT_URI, "jid = '" + jid + "'", null);
-                msgList.clear();
-                service.setMessageList(account, jid, msgList);
+                service.setMessageList(account, jid, new ArrayList<MessageItem>());
                 updateList();
                 break;
             case R.id.chats:
@@ -636,6 +639,20 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                     item.expandActionView();
                 }
                 break;
+            case R.id.select:
+                viewMode = ChatAdapter.ViewMode.multi;
+                createOptionMenu();
+                updateList();
+                break;
+            case R.id.copy:
+                if (listView.getAdapter() instanceof ChatAdapter) listAdapter.copySelectedMessages();
+                else if (listView.getAdapter() instanceof MucChatAdapter) listMucAdapter.copySelectedMessages();
+                break;
+            case R.id.finish:
+                viewMode = ChatAdapter.ViewMode.single;
+                createOptionMenu();
+                updateList();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -644,11 +661,14 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REQUEST_TEMPLATES) {
+        if (resultCode != RESULT_OK) return;
+        if (requestCode == REQUEST_TEMPLATES) {
             String text = data.getStringExtra("text");
             String oldtext = service.getText(jid);
             if (oldtext.length() > 0) text = oldtext + " " + text;
             service.setText(jid, text);
+        } else if (requestCode == REQUEST_FILE) {
+            uploadPhoto(data);
         }
     }
 
@@ -667,100 +687,16 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
         }
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long idx) {
-        CharSequence[] items;
-        final MessageItem message = (MessageItem) parent.getAdapter().getItem(position);
-
-        if (message.getName().equals(getResources().getString(R.string.Me))) {
-            items = new CharSequence[6];
-            items[4] = getString(R.string.Edit);
-        }
-        else if (message.containsCaptcha()) {
-            items = new CharSequence[6];
-            items[4] = "Captcha";
-        }
-        else if (service.getConferencesHash(account).containsKey(jid)) {
-            items = new CharSequence[6];
-            items[4] = getString(R.string.Reply);
-        }
-        else items = new CharSequence[5];
-
-        if (message.isSelected()) items[0] = getString(R.string.DeselectMessage);
-        else items[0] = getString(R.string.SelectMessage);
-        items[1] = getString(R.string.Quote);
-        items[2] = getString(R.string.Copy);
-        items[3] = getString(R.string.SelectText);
-        items[items.length-1] = getString(R.string.DeselectAllMessages);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(Chat.this);
-        builder.setTitle(R.string.Actions);
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        List<MessageItem> list = service.getMessageList(account, jid);
-                        String baseId = message.getBaseId();
-
-                        if (selectedMessages.contains(baseId)) selectedMessages.remove(baseId);
-                        else selectedMessages.add(baseId);
-
-                        for (MessageItem item : list) {
-                            if (item.getBaseId().equals(baseId)) {
-                                item.select(!item.isSelected());
-                            }
-                        }
-                        updateList();
-                        break;
-                    case 1:
-                        MessageDialogs.QuoteDialog(Chat.this, msgList, position);
-                        break;
-                    case 2:
-                        MessageDialogs.CopyDialog(Chat.this, msgList, position);
-                        break;
-                    case 3:
-                        MessageDialogs.SelectTextDialog(Chat.this, message);
-                        break;
-                    case 4:
-                        if (message.containsCaptcha()) {
-                            String id = message.getId();
-
-                            JTalkService.getInstance().addDataForm(id, message.getForm());
-                            Intent in = new Intent(Chat.this, DataFormActivity.class);
-                            in.putExtra("id", id);
-                            in.putExtra("cap", true);
-                            in.putExtra("jid", message.getName());
-                            in.putExtra("bob", message.getBob().getData());
-                            in.putExtra("cid", message.getBob().getCid());
-                            startActivity(in);
-                            break;
-                        } else if (message.getName().equals(getString(R.string.Me))) {
-                            MessageDialogs.EditMessageDialog(Chat.this, account, message, jid);
-                            break;
-                        } else if (service.getConferencesHash(account).containsKey(jid)) {
-                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Chat.this);
-                            String separator = prefs.getString("nickSeparator", ", ");
-
-                            Intent intent = new Intent(Constants.PASTE_TEXT);
-                            intent.putExtra("text", message.getName() + separator);
-                            sendBroadcast(intent);
-                            break;
-                        } else {
-
-                        }
-                    case 5:
-                        selectedMessages.clear();
-                        updateList();
-                        break;
-                }
-            }
-        });
-        builder.create().show();
-        return true;
+    private void uploadPhoto(Intent intent) {
+        Uri uri = intent.getData();
+        if (uri == null) return;
+        String j = jid;
+        if (isPrivate) j = jid;
+        else if (resource != null && resource.length() > 0) j = jid + "/" + resource;
+        new ImgurUploadTask(uri, this, account, j, muc).execute();
     }
 
-    private void updateMessage(String id, String body) {
+//    private void updateMessage(String id, String body) {
 //        for (MessageItem item : msgList) {
 //            if (item.getType() == MessageItem.Type.message) {
 //                if (id.equals(item.getId())) {
@@ -770,18 +706,15 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
 //                }
 //            }
 //        }
-    }
+//    }
 
     private void updateList() {
         boolean scroll = listView.isScroll();
-
-        msgList = service.getMessageList(account, jid);
-
         if (isMuc) {
-            listMucAdapter.update(jid, muc.getNickname(), msgList, searchString);
+            listMucAdapter.update(account, jid, muc.getNickname(), searchString, viewMode);
             listMucAdapter.notifyDataSetChanged();
         } else {
-            listAdapter.update(jid, msgList, searchString);
+            listAdapter.update(account, jid, searchString, viewMode);
             listAdapter.notifyDataSetChanged();
         }
 
@@ -830,11 +763,15 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
 
     private void updateStatus() {
         chatsSpinnerAdapter.notifyDataSetChanged();
-
-        ActionBar ab = getSupportActionBar();
-        ab.setDisplayUseLogoEnabled(true);
-        if (isMuc) ab.setLogo(service.getIconPicker().getMucDrawable());
-        else ab.setLogo(service.getIconPicker().getDrawableByPresence(service.getPresence(account, jid)));
+        if (service != null) {
+            IconPicker ip = service.getIconPicker();
+            if (ip != null) {
+                ActionBar ab = getActionBar();
+                ab.setDisplayUseLogoEnabled(true);
+                if (isMuc) ab.setLogo(ip.getMucDrawable());
+                else ab.setLogo(ip.getDrawableByPresence(service.getPresence(account, jid)));
+            }
+        }
     }
 
     private void registerReceivers() {
@@ -866,6 +803,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                 boolean clear = intent.getBooleanExtra("clear", false);
                 if (user.equals(jid)) {
                     updateList();
+                    chatsSpinnerAdapter.notifyDataSetChanged();
                 } else {
                     updateUsers();
                     updateChats();
@@ -986,7 +924,6 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
                 item.setTime(stamp);
                 item.setBody(body);
                 item.setReceived(received);
-                item.select(selectedMessages.contains(baseId));
 
                 list.add(item);
             } while (cursor.moveToNext());
@@ -997,8 +934,7 @@ public class Chat extends SherlockActivity implements View.OnClickListener, OnSc
     }
 
     private void clearChat() {
-        msgList.clear();
-        service.setMessageList(account, jid, msgList);
+        service.setMessageList(account, jid, new ArrayList<MessageItem>());
         updateList();
     }
 

@@ -34,12 +34,18 @@ public class ClientIcons {
 							imageView.setVisibility(View.VISIBLE);
 							if (node.toLowerCase().contains("adium")) {
 								imageView.setImageResource(R.drawable.client_adium);
+                            } else if (node.toLowerCase().contains("github.com/snuk182/aceim")) {
+								imageView.setImageResource(R.drawable.client_aceim);
                             } else if (node.toLowerCase().contains("aqq.eu")) {
 								imageView.setImageResource(R.drawable.client_aqq);
+                            } else if (node.toLowerCase().contains("www.barobin.com/caps")) {
+								imageView.setImageResource(R.drawable.client_bayan);
                             } else if (node.toLowerCase().contains("www.beem-project.com")) {
 								imageView.setImageResource(R.drawable.client_beem);
                             } else if (node.toLowerCase().contains("bitlbee.org/xmpp/caps")) {
 								imageView.setImageResource(R.drawable.client_bitlbee);
+                            } else if (node.toLowerCase().contains("simpleapps.ru/caps") || node.toLowerCase().contains("blacksmith-2.googlecode.com/svn/")) {
+								imageView.setImageResource(R.drawable.client_blacksmith_bot);
                             } else if (node.toLowerCase().contains("bluejabb")) {
 								imageView.setImageResource(R.drawable.client_bluejabb);
 							} else if (node.toLowerCase().contains("bombusmod.net.ru")) {
@@ -64,6 +70,8 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_freomessenger);
                             } else if (node.toLowerCase().contains("www.freq-bot.net")) {
 								imageView.setImageResource(R.drawable.client_freq);
+                            } else if (node.toLowerCase().contains("www.climm.org/xmpp/caps")) {
+								imageView.setImageResource(R.drawable.client_climm);
                             } else if (node.toLowerCase().contains("coccinella.sourceforge.net/protocol/caps")) {
 								imageView.setImageResource(R.drawable.client_coccinella);
 							} else if (node.toLowerCase().contains("gajim.org")) {
@@ -102,12 +110,18 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_gmail);
                             } else if (node.toLowerCase().contains("tomclaw.com/mandarin_im/caps")) {
 								imageView.setImageResource(R.drawable.client_mandarin);
+                            } else if (node.toLowerCase().contains("mayplaces.com/im/")) {
+								imageView.setImageResource(R.drawable.client_mayplaces);
 							} else if (node.toLowerCase().contains("mcabber")) {
 								imageView.setImageResource(R.drawable.client_mcabber);
+                            } else if (node.toLowerCase().contains("monal.im/caps")) {
+								imageView.setImageResource(R.drawable.client_monal);
 							} else if (node.toLowerCase().contains("nimbuzz")) {
 								imageView.setImageResource(R.drawable.client_nimbuzz);
                             } else if (node.toLowerCase().contains("sleekxmpp.com/ver/")) {
                                 imageView.setImageResource(R.drawable.client_poezio);
+                            } else if (node.toLowerCase().contains("www.profanity.im")) {
+                                imageView.setImageResource(R.drawable.client_profanity);
                             } else if (node.toLowerCase().contains("psi-im.org")) {
 								imageView.setImageResource(R.drawable.client_psi);
 							} else if (node.toLowerCase().contains("psi+") || node.toLowerCase().contains("psi-dev.googlecode.com")) {
@@ -118,6 +132,8 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_qip2010);
 							} else if (node.toLowerCase().contains("pda.qip.ru")) {
 								imageView.setImageResource(R.drawable.client_qippda);
+                            } else if (node.toLowerCase().contains("pako.googlecode.com")) {
+								imageView.setImageResource(R.drawable.client_pako);
                             } else if (node.toLowerCase().contains("pandion.im")) {
 								imageView.setImageResource(R.drawable.client_pandion);
 							} else if (node.toLowerCase().contains("pidgin")) {
@@ -136,6 +152,8 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_sawim);
                             } else if (node.toLowerCase().contains("www.igniterealtime.org/projects/smack/")) {
 								imageView.setImageResource(R.drawable.client_xabber);
+                            } else if (node.toLowerCase().contains("safetyjabber.com/caps")) {
+								imageView.setImageResource(R.drawable.client_sj);
 							} else if (node.toLowerCase().contains("smack")) {
 								imageView.setImageResource(R.drawable.client_smack);
                             } else if (node.toLowerCase().contains("swift.im")) {
@@ -164,10 +182,14 @@ public class ClientIcons {
 								imageView.setImageResource(R.drawable.client_pjc);
 							} else if (node.toLowerCase().contains("www.android.com/gtalk/client")) {
 								imageView.setImageResource(R.drawable.client_android);
+                            } else if (node.toLowerCase().contains("habahaba.im/")) {
+								imageView.setImageResource(R.drawable.client_habahaba);
 							} else if (node.toLowerCase().contains("imov")) {
 								imageView.setImageResource(R.drawable.client_imov);
                             } else if (node.toLowerCase().contains("chat.jabbercity.ru/caps")) {
 								imageView.setImageResource(R.drawable.client_jabbercity);
+                            } else if (node.toLowerCase().contains("emacs-jabber.sourceforge.net")) {
+								imageView.setImageResource(R.drawable.client_jabber_el);
 							} else if (node.toLowerCase().contains("jabiru.mzet.net/caps")) {
 								imageView.setImageResource(R.drawable.client_jabiru);
 							} else if (node.toLowerCase().contains("jappix")) {

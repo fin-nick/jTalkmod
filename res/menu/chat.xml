@@ -18,11 +18,17 @@
     <item android:id="@+id/resource"
           android:title="@string/SelectResource"
           android:showAsAction="never"/>
+    <item android:id="@+id/select"
+          android:title="@string/SelectMessage"
+          android:showAsAction="never"/>
     <item android:id="@+id/info"
           android:title="@string/Info"
           android:showAsAction="never"/>
     <item android:id="@+id/file"
           android:title="@string/SendFile"
+          android:showAsAction="never"/>
+    <item android:id="@+id/imgur"
+          android:title="@string/SendPhoto"
           android:showAsAction="never"/>
     <item android:id="@+id/history"
           android:title="@string/History"

@@ -22,11 +22,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.*;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.text.ClipboardManager;
+import android.view.*;
 import android.widget.*;
-import com.actionbarsherlock.app.SherlockActivity;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.adapter.MainPageAdapter;
@@ -49,16 +51,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
-import android.view.View;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 import com.viewpagerindicator.TitlePageIndicator;
 
-public class VCardActivity extends SherlockActivity {
+public class VCardActivity extends Activity {
 	private JTalkService service;
 	private String account;
 	private String jid;
@@ -81,16 +78,18 @@ public class VCardActivity extends SherlockActivity {
 		jid = getIntent().getStringExtra("jid");
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
 		setContentView(R.layout.paged_activity);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 	    setTitle("vCard");
-	    getSupportActionBar().setSubtitle(jid);
+	    getActionBar().setSubtitle(jid);
 
         if (service.getConferencesHash(account).containsKey(StringUtils.parseBareAddress(jid))) {
             Presence p = service.getConferencesHash(account).get(StringUtils.parseBareAddress(jid)).getOccupantPresence(jid);
-            MUCUser mucUser = (MUCUser) p.getExtension("x", "http://jabber.org/protocol/muc#user");
-            if (mucUser != null) {
-                String j = mucUser.getItem().getJid();
-                if (j != null && j.length() > 3) getSupportActionBar().setSubtitle(j);
+            if (p != null) {
+                MUCUser mucUser = (MUCUser) p.getExtension("x", "http://jabber.org/protocol/muc#user");
+                if (mucUser != null) {
+                    String j = mucUser.getItem().getJid();
+                    if (j != null && j.length() > 3) getActionBar().setSubtitle(j);
+                }
             }
         }
 
@@ -188,18 +187,28 @@ public class VCardActivity extends SherlockActivity {
 	    mTitleIndicator.setTextColor(0xFF555555);
 	    mTitleIndicator.setViewPager(mPager);
 	    mTitleIndicator.setCurrentItem(0);
+
+        new LoadTask().execute();
 	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		new LoadTask().execute();
-	}
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.view_vcard, menu);
+
+        LocationExtension geoloc = service.getLocation(jid);
+        if (geoloc != null) {
+            lat = geoloc.getLat();
+            lon = geoloc.getLon();
+            if (lat != null && lon != null) {
+                menu.findItem(R.id.map).setVisible(true);
+            }
+        }
         return super.onCreateOptionsMenu(menu);
     }
 	
@@ -210,8 +219,13 @@ public class VCardActivity extends SherlockActivity {
 				finish();
 				break;
 			case R.id.refresh:
-				onResume();
+                new LoadTask().execute();
 				break;
+            case R.id.map:
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://maps.google.com/?ll=" + lat + "," + lon));
+                startActivity(intent);
+                break;
             case R.id.copy:
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 clipboard.setText(jid);
@@ -451,7 +465,19 @@ public class VCardActivity extends SherlockActivity {
 						t2.setText(strings.get(key));
 						adapter.add(linear);
 					}
-					
+
+                    TunesExtension tunes = service.getTunes(jid);
+                    if (tunes != null) {
+                        LinearLayout linear = (LinearLayout) ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.vcard_item, null);
+
+                        TextView resource = (TextView) linear.findViewById(R.id.resource);
+                        resource.setText("Tunes:");
+
+                        TextView value = (TextView) linear.findViewById(R.id.value);
+                        value.setText(tunes.getArtist() + " - " + tunes.getTitle() + " (" + tunes.getSource() + ")");
+                        adapter.add(linear);
+                    }
+
 					list.refreshDrawableState();
 				    list.setAdapter(adapter);
 				    list.setVisibility(View.VISIBLE);

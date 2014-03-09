@@ -17,15 +17,15 @@
 
 package net.ustyugov.jtalk.activity.filetransfer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Notify;
@@ -37,7 +37,7 @@ import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 
 import java.io.File;
 
-public class ReceiveFileActivity extends SherlockActivity implements View.OnClickListener {
+public class ReceiveFileActivity extends Activity implements View.OnClickListener {
     private static final String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
     private Button ok, cancel;
     private FileTransferRequest request;
@@ -48,7 +48,7 @@ public class ReceiveFileActivity extends SherlockActivity implements View.OnClic
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
         setContentView(R.layout.receive_file);
         setTitle(R.string.AcceptFile);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         LinearLayout linear = (LinearLayout) findViewById(R.id.linear);
         linear.setBackgroundColor(Colors.BACKGROUND);
@@ -98,26 +98,31 @@ public class ReceiveFileActivity extends SherlockActivity implements View.OnClic
     @Override
     public void onClick(View view) {
         if (view == ok) {
-            try {
-                File f = new File(path);
-                f.mkdirs();
-                f = new File(path + "/" + request.getFileName());
-
-                IncomingFileTransfer in = request.accept();
-                in.recieveFile(f);
-                String name = request.getFileName();
-
-                while (!in.isDone()) {
-                    FileTransfer.Status status = in.getStatus();
-                    Notify.incomingFileProgress(name, status);
+            new Thread() {
+                @Override
+                public void run() {
                     try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) { }
+                        File f = new File(path);
+                        f.mkdirs();
+                        f = new File(path + "/" + request.getFileName());
+
+                        IncomingFileTransfer in = request.accept();
+                        in.recieveFile(f);
+                        String name = request.getFileName();
+
+                        while (!in.isDone()) {
+                            FileTransfer.Status status = in.getStatus();
+                            Notify.incomingFileProgress(name, status);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ex) { }
+                        }
+                        Notify.incomingFileProgress(name, in.getStatus());
+                    } catch (Exception e) {
+                        Notify.incomingFileProgress(request.getFileName(), FileTransfer.Status.error);
+                    }
                 }
-                Notify.incomingFileProgress(name, in.getStatus());
-            } catch (Exception e) {
-                Notify.incomingFileProgress(request.getFileName(), FileTransfer.Status.error);
-            }
+            }.start();
             finish();
         } else if (view == cancel) {
             request.reject();

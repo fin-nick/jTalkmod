@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.jtalkmod" android:versionName="@string/version" android:installLocation="auto" android:versionCode="391">
-    <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="16"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.jtalkmod" android:versionName="@string/version" android:installLocation="auto" android:versionCode="403">
+    <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="16"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
 
-    
     <application android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppThemeDark">
     	<!-- Provider -->
         <provider android:name="net.ustyugov.jtalk.db.JTalkProvider" android:authorities="com.jtalkmod" android:exported="true"/>
@@ -27,8 +24,8 @@
         <activity android:name="net.ustyugov.jtalk.activity.Preferences" android:label="@string/app_name" />
         <activity android:name="net.ustyugov.jtalk.activity.vcard.VCardActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.vcard.SetVcardActivity" android:configChanges="keyboard|keyboardHidden|orientation" />
-        <activity android:name="net.ustyugov.jtalk.activity.PrivacyListsActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
-        <activity android:name="net.ustyugov.jtalk.activity.PrivacyRulesActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.privacy.PrivacyListsActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.privacy.PrivacyRulesActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.Chat"/>
         <activity android:name="net.ustyugov.jtalk.activity.muc.Muc" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.muc.MucSearch" android:configChanges="keyboard|keyboardHidden|orientation"/>
@@ -39,11 +36,12 @@
         <activity android:name="net.ustyugov.jtalk.activity.ServiceDiscovery" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.DataFormActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.CommandsActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
-        <activity android:name="net.ustyugov.jtalk.activity.Accounts" android:configChanges="keyboard|keyboardHidden|orientation"/>
-        <activity android:name="net.ustyugov.jtalk.activity.AddAccountActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.account.Accounts" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.account.AddAccountActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
         <activity android:name="net.ustyugov.jtalk.activity.muc.MucUsers" android:configChanges="keyboard|keyboardHidden|orientation" />
-        <activity android:name="net.ustyugov.jtalk.activity.TemplatesActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
-        <activity android:name="net.ustyugov.jtalk.activity.SendToActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation">
+        <activity android:name="net.ustyugov.jtalk.activity.note.TemplatesActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.note.NotesActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
+        <activity android:name="net.ustyugov.jtalk.activity.filetransfer.SendToActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation">
         <intent-filter>
             <action android:name="android.intent.action.SEND"/>
             <category android:name="android.intent.category.DEFAULT"/>
@@ -51,12 +49,19 @@
         </intent-filter>
         </activity>
 
-        <receiver android:name="net.ustyugov.jtalk.OnBootReceiver">
+        <!-- Receivers -->
+        <receiver android:name="net.ustyugov.jtalk.receivers.OnBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        
+        <receiver android:name="net.ustyugov.jtalk.receivers.TunesReceiver">
+            <intent-filter>
+                <action android:name="com.android.music.playstatechanged"/>
+                <action android:name="com.android.music.metachanged"/>
+            </intent-filter>
+        </receiver>
+
         <!-- Services -->
         <service android:name="net.ustyugov.jtalk.service.JTalkService" />
         <service android:name="net.ustyugov.jtalk.service.AuthenticationService" android:exported="true" android:process=":auth">

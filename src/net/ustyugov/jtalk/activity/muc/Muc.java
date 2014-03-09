@@ -17,48 +17,40 @@
 
 package net.ustyugov.jtalk.activity.muc;
 
+import android.app.Activity;
 import android.content.*;
 import android.database.Cursor;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
+import android.view.*;
 import com.viewpagerindicator.TitlePageIndicator;
 import net.ustyugov.jtalk.Colors;
 import net.ustyugov.jtalk.Constants;
 import net.ustyugov.jtalk.RosterItem;
 import net.ustyugov.jtalk.activity.Chat;
 import net.ustyugov.jtalk.adapter.MainPageAdapter;
-import net.ustyugov.jtalk.adapter.MucRosterAdapter;
+import net.ustyugov.jtalk.adapter.muc.MucRosterAdapter;
 import net.ustyugov.jtalk.db.AccountDbHelper;
 import net.ustyugov.jtalk.db.JTalkProvider;
 import net.ustyugov.jtalk.dialog.ChangeChatDialog;
 import net.ustyugov.jtalk.dialog.MucDialogs;
-import net.ustyugov.jtalk.dialog.RosterDialogs;
 import net.ustyugov.jtalk.service.JTalkService;
 
 import org.jivesoftware.smack.RosterEntry;
 
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.jtalkmod.R;
 import org.jivesoftware.smack.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Muc extends SherlockActivity implements OnKeyListener {
+public class Muc extends Activity {
     List<MucRosterAdapter> adapters = new ArrayList<MucRosterAdapter>();
     private BroadcastReceiver updateReceiver;
     private BroadcastReceiver messageReceiver;
@@ -72,7 +64,7 @@ public class Muc extends SherlockActivity implements OnKeyListener {
         service = JTalkService.getInstance();
         setTheme(Colors.isLight ? R.style.AppThemeLight : R.style.AppThemeDark);
         setTitle(R.string.MUC);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.paged_activity);
 
         LinearLayout linear = (LinearLayout) findViewById(R.id.linear);
@@ -194,20 +186,20 @@ public class Muc extends SherlockActivity implements OnKeyListener {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.muc, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        String acc = (String) mPages.get(mPager.getCurrentItem()).getTag();
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 break;
             case R.id.join:
-                String account = (String) mPages.get(mPager.getCurrentItem()).getTag();
-                MucDialogs.joinDialog(this, account, null, null);
+                MucDialogs.joinDialog(this, acc, null, null);
                 break;
             case R.id.bookmarks:
                 startActivity(new Intent(this, Bookmarks.class));
@@ -215,6 +207,10 @@ public class Muc extends SherlockActivity implements OnKeyListener {
             case R.id.chats:
                 ChangeChatDialog.show(this);
                 break;
+            case R.id.search:
+                Intent sIntent = new Intent(this, MucSearch.class);
+                sIntent.putExtra("account", acc);
+                startActivity(sIntent);
             default:
                 return false;
         }
@@ -226,13 +222,5 @@ public class Muc extends SherlockActivity implements OnKeyListener {
             adapter.update();
             adapter.notifyDataSetChanged();
         }
-    }
-
-    public boolean onKey(View view, int code, KeyEvent event) {
-        if (KeyEvent.KEYCODE_SEARCH == code) {
-            Intent sIntent = new Intent(this, MucSearch.class);
-            startActivity(sIntent);
-        }
-        return false;
     }
 }
